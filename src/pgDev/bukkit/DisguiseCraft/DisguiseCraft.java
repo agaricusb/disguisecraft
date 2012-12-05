@@ -350,14 +350,14 @@ public class DisguiseCraft extends JavaPlugin {
     public void unDisguisePlayer(Player player) {
     	String name = player.getName();
     	if (disguiseDB.containsKey(name)) {
-    		if (customNick.containsKey(name)) {
-	    		player.setDisplayName(customNick.get(name));
-	    		customNick.remove(name);
-	    	} else {
-	    		player.setDisplayName(name);
-	    	}
+    		Disguise disguise = disguiseDB.get(name);
+    		
+    		if (disguise.type.isPlayer()) {
+    			resetPlayerName(player);
+    		}
+    		
     		sendUnDisguise(player, null);
-    		disguiseIDs.remove(disguiseDB.get(player.getName()).entityID);
+    		disguiseIDs.remove(disguise.entityID);
     		disguiseDB.remove(name);
     		
     		// Stop position updater
@@ -368,13 +368,9 @@ public class DisguiseCraft extends JavaPlugin {
     public void dropDisguise(Player player) {
     	String name = player.getName();
     	if (disguiseDB.containsKey(name)) {
-    		// Database Handling
-    		if (customNick.containsKey(name)) {
-	    		player.setDisplayName(customNick.get(name));
-	    		customNick.remove(name);
-	    	} else {
-	    		player.setDisplayName(name);
-	    	}
+    		if (disguiseDB.get(name).type.isPlayer()) {
+    			resetPlayerName(player);
+    		}
     		
     		// Observer Handling
     		LinkedList<Packet> toObservers = new LinkedList<Packet>();
@@ -391,6 +387,15 @@ public class DisguiseCraft extends JavaPlugin {
     		disguiseIDs.remove(disguise.entityID);
     		disguiseDB.remove(name);
     		droppedDisguises.put(disguise.entityID, disguise);
+    	}
+    }
+    
+    public void resetPlayerName(Player player) {
+    	String name = player.getName();
+    	if (customNick.containsKey(name)) {
+    		player.setDisplayName(customNick.remove(name));
+    	} else {
+    		player.setDisplayName(name);
     	}
     }
     
