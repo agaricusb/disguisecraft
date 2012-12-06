@@ -406,7 +406,7 @@ public class Disguise {
 	 * @return A clone of this Disguise object
 	 */
 	public Disguise clone() {
-		return new Disguise(entityID, data, type);
+		return new Disguise(entityID, new LinkedList<String>(data), type);
 	}
 	
 	/**
