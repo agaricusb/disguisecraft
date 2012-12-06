@@ -60,7 +60,7 @@ public class DCMainListener implements Listener {
 		}
 		
 		// Updates?
-		if (DisguiseCraft.pluginSettings.updateNotification && plugin.hasPermissions(player, "disguisecraft.update")) {
+		if (DisguiseCraft.pluginSettings.updateNotification && player.hasPermission("disguisecraft.update")) {
 			// Check for new DisguiseCraft version
 			plugin.getServer().getScheduler().scheduleAsyncDelayedTask(plugin, new DCUpdateNotifier(plugin, player));
 			
@@ -117,8 +117,8 @@ public class DCMainListener implements Listener {
 			if (event.getTarget() instanceof Player) {
 				Player player = (Player) event.getTarget();
 				if (plugin.disguiseDB.containsKey(player.getName())) {
-					if (plugin.hasPermissions(player, "disguisecraft.notarget")) {
-						if (plugin.hasPermissions(player, "disguisecraft.notarget.strict")) {
+					if (player.hasPermission("disguisecraft.notarget")) {
+						if (player.hasPermission("disguisecraft.notarget.strict")) {
 							event.setCancelled(true);
 						} else {
 							if (!plugin.disguiseDB.get(player.getName()).type.isPlayer() && (event.getReason() == TargetReason.CLOSEST_PLAYER || event.getReason() == TargetReason.RANDOM_TARGET)) {

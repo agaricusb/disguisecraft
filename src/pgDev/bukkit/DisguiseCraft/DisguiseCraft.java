@@ -40,8 +40,6 @@ import pgDev.bukkit.DisguiseCraft.stats.Metrics.Graph;
 
 import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.ProtocolManager;
-import com.nijiko.permissions.PermissionHandler;
-import com.nijikokun.bukkit.Permissions.Permissions;
 
 /**
  * The DisguiseCraft plugin main class. With the exception of the
@@ -60,9 +58,6 @@ public class DisguiseCraft extends JavaPlugin {
     
     // Bukkit Logger (Console Output)
     public static Logger logger;
-	
-    // Permissions support
-    static PermissionHandler Permissions;
     
     // Protocol Hooks
     public static ProtocolManager protocolManager;
@@ -160,9 +155,6 @@ public class DisguiseCraft extends JavaPlugin {
         		logger.log(Level.INFO, "Another plugin is using the /" + command + " command. You will need to use one of the alternate commands.");
         	}
         }
-		
-		// Get permissions in the game!
-        setupPermissions();
         
         // Set up the protocol hook!
         if (pluginSettings.disguisePVP) {
@@ -231,26 +223,6 @@ public class DisguiseCraft extends JavaPlugin {
     	// Notify success
 		logger.log(Level.INFO, "Disabled!");
 	}
-	
-	// Permissions Methods
-    private void setupPermissions() {
-        Plugin permissions = this.getServer().getPluginManager().getPlugin("Permissions");
-
-        if (Permissions == null) {
-            if (permissions != null) {
-                Permissions = ((Permissions)permissions).getHandler();
-            } else {
-            }
-        }
-    }
-    
-    public boolean hasPermissions(Player player, String node) {
-        if (Permissions != null) {
-        	return Permissions.has(player, node);
-        } else {
-            return player.hasPermission(node);
-        }
-    }
     
     // Stats
     public void setupMetrics() {
@@ -431,7 +403,7 @@ public class DisguiseCraft extends JavaPlugin {
 		if (observer == null) {
 			disguiseToWorld(disguised.getWorld(), disguised, toSend);
 		} else {
-			if (!hasPermissions(observer, "disguisecraft.seer")) {
+			if (!observer.hasPermission("disguisecraft.seer")) {
 				if (pluginSettings.noTabHide) {
 					packetListener.recentlyDisguised.add(disguised.getName());
 				}
@@ -531,7 +503,7 @@ public class DisguiseCraft extends JavaPlugin {
     public void disguiseToWorld(World world, Player player, LinkedList<Packet> packets) {
     	for (Player observer : world.getPlayers()) {
 	    	if (observer != player) {
-	    		if (!hasPermissions(observer, "disguisecraft.seer")) {
+	    		if (!observer.hasPermission("disguisecraft.seer")) {
 	    			if (pluginSettings.noTabHide) {
 						packetListener.recentlyDisguised.add(player.getName());
 					}

@@ -101,9 +101,9 @@ public class DCCommandListener implements CommandExecutor, TabCompleter {
 					String types = "";
 					for (DisguiseType type : DisguiseType.values()) {
 						if (DisguiseType.missingDisguises.contains(type)) continue; 
-						if (type.isMob() && !plugin.hasPermissions(player, "disguisecraft.mob." + type.name().toLowerCase())) continue;
-						if (type.isVehicle() && !plugin.hasPermissions(player, "disguisecraft.object.vehicle." + type.name().toLowerCase())) continue;
-						if (type.isBlock() && !plugin.hasPermissions(player, "disguisecraft.object.block." + type.name().toLowerCase())) continue;
+						if (type.isMob() && !player.hasPermission("disguisecraft.mob." + type.name().toLowerCase())) continue;
+						if (type.isVehicle() && !player.hasPermission("disguisecraft.object.vehicle." + type.name().toLowerCase())) continue;
+						if (type.isBlock() && !player.hasPermission("disguisecraft.object.block." + type.name().toLowerCase())) continue;
 						if (types.equals("")) {
 							types = type.name();
 						} else {
@@ -150,7 +150,7 @@ public class DCCommandListener implements CommandExecutor, TabCompleter {
 					sender.sendMessage(ChatColor.RED + "You cannot send a disguise from the console. Just disguise the player instead.");
 				} else {
 					if (plugin.disguiseDB.containsKey(player.getName())) {
-						if (plugin.hasPermissions(player, "disguisecraft.other.disguise")) {
+						if (player.hasPermission("disguisecraft.other.disguise")) {
 							if (args.length < 2) {
 								sender.sendMessage(ChatColor.RED + "You must specify a player.");
 							} else {
@@ -223,7 +223,7 @@ public class DCCommandListener implements CommandExecutor, TabCompleter {
 					}
 				}
 			} else if (args[0].equalsIgnoreCase("nopickup") || args[0].equalsIgnoreCase("np")) {
-				if (isConsole || plugin.hasPermissions(player, "disguisecraft.nopickup")) {
+				if (isConsole || player.hasPermission("disguisecraft.nopickup")) {
 					if (plugin.disguiseDB.containsKey(player.getName())) {
 						Disguise disguise = plugin.disguiseDB.get(player.getName());
 						if (disguise.data.remove("nopickup")) {
@@ -239,7 +239,7 @@ public class DCCommandListener implements CommandExecutor, TabCompleter {
 					player.sendMessage(ChatColor.RED + "You do not have permission to toggle nopickup");
 				}
 			} else if (args[0].equalsIgnoreCase("blocklock") || args[0].equalsIgnoreCase("bl")) {
-				if (isConsole || plugin.hasPermissions(player, "disguisecraft.blocklock")) {
+				if (isConsole || player.hasPermission("disguisecraft.blocklock")) {
 					if (plugin.disguiseDB.containsKey(player.getName())) {
 						Disguise disguise = plugin.disguiseDB.get(player.getName());
 						if (disguise.data.remove("blocklock")) {
@@ -261,7 +261,7 @@ public class DCCommandListener implements CommandExecutor, TabCompleter {
 						sender.sendMessage(ChatColor.RED + "That mob type was not recognized.");
 					} else {
 						if (type.isSubclass(Animals.class) || type == DisguiseType.Villager) {
-							if (isConsole || plugin.hasPermissions(player, "disguisecraft.mob." + type.name().toLowerCase() + ".baby")) {
+							if (isConsole || player.hasPermission("disguisecraft.mob." + type.name().toLowerCase() + ".baby")) {
 								if (plugin.disguiseDB.containsKey(player.getName())) {
 									Disguise disguise = plugin.disguiseDB.get(player.getName()).clone();
 									disguise.setType(type).setSingleData("baby");
@@ -306,7 +306,7 @@ public class DCCommandListener implements CommandExecutor, TabCompleter {
 									disguise.addSingleData("baby");
 									
 									// Check for permissions
-									if (isConsole || plugin.hasPermissions(player, "disguisecraft.mob." + disguise.type.name().toLowerCase() + ".baby")) {
+									if (isConsole || player.hasPermission("disguisecraft.mob." + disguise.type.name().toLowerCase() + ".baby")) {
 										// Pass the event
 										PlayerDisguiseEvent ev = new PlayerDisguiseEvent(player, disguise);
 										plugin.getServer().getPluginManager().callEvent(ev);
@@ -341,7 +341,7 @@ public class DCCommandListener implements CommandExecutor, TabCompleter {
 						sender.sendMessage(ChatColor.RED + "That mob type was not recognized.");
 					} else {
 						if (type == DisguiseType.Sheep) {
-							if (isConsole || plugin.hasPermissions(player, "disguisecraft.mob." + type.name().toLowerCase() + ".color." + args[0].toLowerCase())) {
+							if (isConsole || player.hasPermission("disguisecraft.mob." + type.name().toLowerCase() + ".color." + args[0].toLowerCase())) {
 								if (plugin.disguiseDB.containsKey(player.getName())) {
 									Disguise disguise = plugin.disguiseDB.get(player.getName()).clone();
 									disguise.setType(type).setSingleData(args[0].toLowerCase());
@@ -390,7 +390,7 @@ public class DCCommandListener implements CommandExecutor, TabCompleter {
 									disguise.addSingleData(args[0].toLowerCase());
 									
 									// Check for permissions
-									if (isConsole || plugin.hasPermissions(player, "disguisecraft.mob." + disguise.type.name().toLowerCase() + ".color." + args[0].toLowerCase())) {
+									if (isConsole || player.hasPermission("disguisecraft.mob." + disguise.type.name().toLowerCase() + ".color." + args[0].toLowerCase())) {
 										// Pass the event
 										PlayerDisguiseEvent ev = new PlayerDisguiseEvent(player, disguise);
 										plugin.getServer().getPluginManager().callEvent(ev);
@@ -420,7 +420,7 @@ public class DCCommandListener implements CommandExecutor, TabCompleter {
 						sender.sendMessage(ChatColor.RED + "That mob type was not recognized.");
 					} else {
 						if (type == DisguiseType.Creeper) {
-							if (isConsole || plugin.hasPermissions(player, "disguisecraft.mob." + type.name().toLowerCase() + ".charged")) {
+							if (isConsole || player.hasPermission("disguisecraft.mob." + type.name().toLowerCase() + ".charged")) {
 								if (plugin.disguiseDB.containsKey(player.getName())) {
 									Disguise disguise = plugin.disguiseDB.get(player.getName()).clone();
 									disguise.setType(type).setSingleData("charged");
@@ -465,7 +465,7 @@ public class DCCommandListener implements CommandExecutor, TabCompleter {
 									disguise.addSingleData("charged");
 									
 									// Check for permissions
-									if (isConsole || plugin.hasPermissions(player, "disguisecraft.mob." + disguise.type.name().toLowerCase() + ".charged")) {
+									if (isConsole || player.hasPermission("disguisecraft.mob." + disguise.type.name().toLowerCase() + ".charged")) {
 										// Pass the event
 										PlayerDisguiseEvent ev = new PlayerDisguiseEvent(player, disguise);
 										plugin.getServer().getPluginManager().callEvent(ev);
@@ -496,7 +496,7 @@ public class DCCommandListener implements CommandExecutor, TabCompleter {
 						sender.sendMessage(ChatColor.RED + "That mob type was not recognized.");
 					} else {
 						if (type == DisguiseType.Slime || type == DisguiseType.MagmaCube) {
-							if (isConsole || plugin.hasPermissions(player, "disguisecraft.mob." + type.name().toLowerCase() + ".size." + args[0].toLowerCase())) {
+							if (isConsole || player.hasPermission("disguisecraft.mob." + type.name().toLowerCase() + ".size." + args[0].toLowerCase())) {
 								if (plugin.disguiseDB.containsKey(player.getName())) {
 									Disguise disguise = plugin.disguiseDB.get(player.getName()).clone();
 									disguise.setType(type).setSingleData(args[0].toLowerCase());
@@ -545,7 +545,7 @@ public class DCCommandListener implements CommandExecutor, TabCompleter {
 									disguise.addSingleData(args[0].toLowerCase());
 									
 									// Check for permissions
-									if (isConsole || plugin.hasPermissions(player, "disguisecraft.mob." + disguise.type.name().toLowerCase() + ".size." + args[0].toLowerCase())) {
+									if (isConsole || player.hasPermission("disguisecraft.mob." + disguise.type.name().toLowerCase() + ".size." + args[0].toLowerCase())) {
 										// Pass the event
 										PlayerDisguiseEvent ev = new PlayerDisguiseEvent(player, disguise);
 										plugin.getServer().getPluginManager().callEvent(ev);
@@ -580,7 +580,7 @@ public class DCCommandListener implements CommandExecutor, TabCompleter {
 						sender.sendMessage(ChatColor.RED + "That mob type was not recognized.");
 					} else {
 						if (type == DisguiseType.Wolf) {
-							if (isConsole || plugin.hasPermissions(player, "disguisecraft.mob." + type.name().toLowerCase() + "." + args[0].toLowerCase())) {
+							if (isConsole || player.hasPermission("disguisecraft.mob." + type.name().toLowerCase() + "." + args[0].toLowerCase())) {
 								if (plugin.disguiseDB.containsKey(player.getName())) {
 									Disguise disguise = plugin.disguiseDB.get(player.getName()).clone();
 									disguise.setType(type).setSingleData(args[0].toLowerCase());
@@ -632,7 +632,7 @@ public class DCCommandListener implements CommandExecutor, TabCompleter {
 									disguise.addSingleData(args[0].toLowerCase());
 									
 									// Check for permissions
-									if (isConsole || plugin.hasPermissions(player, "disguisecraft.mob." + disguise.type.name().toLowerCase() + "." + args[0].toLowerCase())) {
+									if (isConsole || player.hasPermission("disguisecraft.mob." + disguise.type.name().toLowerCase() + "." + args[0].toLowerCase())) {
 										// Pass the event
 										PlayerDisguiseEvent ev = new PlayerDisguiseEvent(player, disguise);
 										plugin.getServer().getPluginManager().callEvent(ev);
@@ -662,7 +662,7 @@ public class DCCommandListener implements CommandExecutor, TabCompleter {
 						sender.sendMessage(ChatColor.RED + "That mob type was not recognized.");
 					} else {
 						if (type == DisguiseType.Ocelot) {
-							if (isConsole || plugin.hasPermissions(player, "disguisecraft.mob." + type.name().toLowerCase() + ".cat." + args[0].toLowerCase())) {
+							if (isConsole || player.hasPermission("disguisecraft.mob." + type.name().toLowerCase() + ".cat." + args[0].toLowerCase())) {
 								if (plugin.disguiseDB.containsKey(player.getName())) {
 									Disguise disguise = plugin.disguiseDB.get(player.getName()).clone();
 									disguise.setType(type).setSingleData(args[0].toLowerCase());
@@ -716,7 +716,7 @@ public class DCCommandListener implements CommandExecutor, TabCompleter {
 									disguise.addSingleData(args[0].toLowerCase());
 									
 									// Check for permissions
-									if (isConsole || plugin.hasPermissions(player, "disguisecraft.mob." + disguise.type.name().toLowerCase() + ".cat." + args[0].toLowerCase())) {
+									if (isConsole || player.hasPermission("disguisecraft.mob." + disguise.type.name().toLowerCase() + ".cat." + args[0].toLowerCase())) {
 										// Pass the event
 										PlayerDisguiseEvent ev = new PlayerDisguiseEvent(player, disguise);
 										plugin.getServer().getPluginManager().callEvent(ev);
@@ -751,7 +751,7 @@ public class DCCommandListener implements CommandExecutor, TabCompleter {
 							return true;
 						}
 						
-						if (isConsole || (plugin.hasPermissions(player, "disguisecraft.burning") && plugin.hasPermissions(player, "disguisecraft.mob." + type.name().toLowerCase()))) {
+						if (isConsole || (player.hasPermission("disguisecraft.burning") && player.hasPermission("disguisecraft.mob." + type.name().toLowerCase()))) {
 							if (plugin.disguiseDB.containsKey(player.getName())) {
 								Disguise disguise = plugin.disguiseDB.get(player.getName()).clone();
 								disguise.setType(type).setSingleData("burning");
@@ -794,7 +794,7 @@ public class DCCommandListener implements CommandExecutor, TabCompleter {
 							sender.sendMessage(ChatColor.RED + "Already burning.");
 						} else {
 							// Check for permissions
-							if (isConsole || plugin.hasPermissions(player, "disguisecraft.burning")) {
+							if (isConsole || player.hasPermission("disguisecraft.burning")) {
 								disguise.addSingleData("burning");
 								
 								// Pass the event
@@ -826,7 +826,7 @@ public class DCCommandListener implements CommandExecutor, TabCompleter {
 						sender.sendMessage(ChatColor.RED + "That mob type was not recognized.");
 					} else {
 						if (type == DisguiseType.Pig) {
-							if (isConsole || plugin.hasPermissions(player, "disguisecraft.mob." + type.name().toLowerCase() + ".saddled")) {
+							if (isConsole || player.hasPermission("disguisecraft.mob." + type.name().toLowerCase() + ".saddled")) {
 								if (plugin.disguiseDB.containsKey(player.getName())) {
 									Disguise disguise = plugin.disguiseDB.get(player.getName()).clone();
 									disguise.setType(type).setSingleData("saddled");
@@ -871,7 +871,7 @@ public class DCCommandListener implements CommandExecutor, TabCompleter {
 									disguise.addSingleData("saddled");
 									
 									// Check for permissions
-									if (isConsole || plugin.hasPermissions(player, "disguisecraft.mob." + disguise.type.name().toLowerCase() + ".saddled")) {
+									if (isConsole || player.hasPermission("disguisecraft.mob." + disguise.type.name().toLowerCase() + ".saddled")) {
 										// Pass the event
 										PlayerDisguiseEvent ev = new PlayerDisguiseEvent(player, disguise);
 										plugin.getServer().getPluginManager().callEvent(ev);
@@ -895,7 +895,7 @@ public class DCCommandListener implements CommandExecutor, TabCompleter {
 					}
 				}
 			} else if (args[0].equalsIgnoreCase("hold")) {
-				if (isConsole || plugin.hasPermissions(player, "disguisecraft.mob.enderman.hold")) {
+				if (isConsole || player.hasPermission("disguisecraft.mob.enderman.hold")) {
 					if (args.length > 1) {
 						String specification = remainingWords(args, 1);
 						Material type = Material.matchMaterial(specification);
@@ -941,8 +941,8 @@ public class DCCommandListener implements CommandExecutor, TabCompleter {
 			} else if (args[0].equalsIgnoreCase("blockdata") || args[0].equalsIgnoreCase("bd")) {
 				if (plugin.disguiseDB.containsKey(player.getName())) {
 					Disguise disguise = plugin.disguiseDB.get(player.getName());
-					if (isConsole || (disguise.type == DisguiseType.Enderman && plugin.hasPermissions(player, "disguisecraft.mob.enderman.hold.metadata"))
-							|| (disguise.type == DisguiseType.FallingBlock && plugin.hasPermissions(player, "disguisecraft.object.block.fallingblock.material.metadata"))) {
+					if (isConsole || (disguise.type == DisguiseType.Enderman && player.hasPermission("disguisecraft.mob.enderman.hold.metadata"))
+							|| (disguise.type == DisguiseType.FallingBlock && player.hasPermission("disguisecraft.object.block.fallingblock.material.metadata"))) {
 						if (args.length > 1) {
 							Byte block = disguise.getBlockID();
 							if (block == null) {
@@ -991,7 +991,7 @@ public class DCCommandListener implements CommandExecutor, TabCompleter {
 						sender.sendMessage(ChatColor.RED + "That mob type was not recognized.");
 					} else {
 						if (type == DisguiseType.Villager) {
-							if (isConsole || plugin.hasPermissions(player, "disguisecraft.mob." + type.name().toLowerCase() + ".occupation." + args[0].toLowerCase())) {
+							if (isConsole || player.hasPermission("disguisecraft.mob." + type.name().toLowerCase() + ".occupation." + args[0].toLowerCase())) {
 								if (plugin.disguiseDB.containsKey(player.getName())) {
 									Disguise disguise = plugin.disguiseDB.get(player.getName()).clone();
 									disguise.setType(type).setSingleData(args[0].toLowerCase());
@@ -1049,7 +1049,7 @@ public class DCCommandListener implements CommandExecutor, TabCompleter {
 									disguise.addSingleData(args[0].toLowerCase());
 									
 									// Check for permissions
-									if (isConsole || plugin.hasPermissions(player, "disguisecraft.mob." + disguise.type.name().toLowerCase() + ".occupation." + args[0].toLowerCase())) {
+									if (isConsole || player.hasPermission("disguisecraft.mob." + disguise.type.name().toLowerCase() + ".occupation." + args[0].toLowerCase())) {
 										// Pass the event
 										PlayerDisguiseEvent ev = new PlayerDisguiseEvent(player, disguise);
 										plugin.getServer().getPluginManager().callEvent(ev);
@@ -1073,7 +1073,7 @@ public class DCCommandListener implements CommandExecutor, TabCompleter {
 					}
 				}
 			} else if (args[0].equalsIgnoreCase("drop")) {
-				if (isConsole || plugin.hasPermissions(player, "disguisecraft.drop")) {
+				if (isConsole || player.hasPermission("disguisecraft.drop")) {
 					if (plugin.disguiseDB.containsKey(player.getName())) {
 						plugin.dropDisguise(player);
 						player.sendMessage(ChatColor.GOLD + "Your disguise has been dropped");
@@ -1094,7 +1094,7 @@ public class DCCommandListener implements CommandExecutor, TabCompleter {
 					} catch (Exception e) {
 					}
 					
-					if (isConsole || plugin.hasPermissions(player, "disguisecraft.player." + args[1].toLowerCase())) {
+					if (isConsole || player.hasPermission("disguisecraft.player." + args[1].toLowerCase())) {
 						if (args[1].length() <= 16) {
 							if (plugin.disguiseDB.containsKey(player.getName())) {
 								Disguise disguise = plugin.disguiseDB.get(player.getName());
@@ -1140,9 +1140,9 @@ public class DCCommandListener implements CommandExecutor, TabCompleter {
 				DisguiseType type = DisguiseType.fromString(args[0]);
 				if (type != null) {
 					// Check for permissions
-					if (isConsole || (type.isMob() && plugin.hasPermissions(player, "disguisecraft.mob." + type.name().toLowerCase()))
-							|| (type.isVehicle() && plugin.hasPermissions(player, "disguisecraft.object.vehicle." + type.name().toLowerCase()))
-							|| (type.isBlock() && plugin.hasPermissions(player, "disguisecraft.object.block." + type.name().toLowerCase()))) {
+					if (isConsole || (type.isMob() && player.hasPermission("disguisecraft.mob." + type.name().toLowerCase()))
+							|| (type.isVehicle() && player.hasPermission("disguisecraft.object.vehicle." + type.name().toLowerCase()))
+							|| (type.isBlock() && player.hasPermission("disguisecraft.object.block." + type.name().toLowerCase()))) {
 						if (plugin.disguiseDB.containsKey(player.getName())) {
 							Disguise disguise = plugin.disguiseDB.get(player.getName()).clone();
 							disguise.setType(type).clearData();
@@ -1186,7 +1186,7 @@ public class DCCommandListener implements CommandExecutor, TabCompleter {
 					Material block = Material.matchMaterial(remainingWords(args, 0));
 					if (block != null && block.isBlock() && block != Material.AIR) {
 						type = DisguiseType.FallingBlock;
-						if (isConsole || plugin.hasPermissions(player, "disguisecraft.object.block.fallingblock.material")) {
+						if (isConsole || player.hasPermission("disguisecraft.object.block.fallingblock.material")) {
 							String newData = "blockID:" + block.getId();
 							if (plugin.disguiseDB.containsKey(player.getName())) {
 								Disguise disguise = plugin.disguiseDB.get(player.getName()).clone();
@@ -1222,7 +1222,7 @@ public class DCCommandListener implements CommandExecutor, TabCompleter {
 			}
 		} else if (label.toLowerCase().startsWith("u")) {
 			if (!isConsole && args.length > 0) {
-				if (plugin.hasPermissions(player, "disguisecraft.other.undisguise")) {
+				if (player.hasPermission("disguisecraft.other.undisguise")) {
 					if (args[0].equals("*")) {
 						LinkedList<String> undisguisedPlayers = new LinkedList<String>();
 						for (Player currentPlayer : plugin.getServer().getOnlinePlayers()) {

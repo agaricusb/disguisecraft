@@ -4,7 +4,6 @@ import java.util.LinkedList;
 import java.util.logging.Level;
 import java.util.Map;
 
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import pgDev.bukkit.DisguiseCraft.DisguiseCraft;
@@ -531,16 +530,15 @@ public class Disguise {
 	 * @return Whether or not he has the permissions (true if yes)
 	 */
 	public boolean hasPermission(Player player) {
-		DisguiseCraft plugin = (DisguiseCraft) Bukkit.getServer().getPluginManager().getPlugin("DisguiseCraft");
-		if (data.contains("burning") && !plugin.hasPermissions(player, "disguisecraft.burning")) {
+		if (data.contains("burning") && !player.hasPermission("disguisecraft.burning")) {
 			return false;
 		}
 		if (type.isPlayer()) { // Check Player
-			if (!plugin.hasPermissions(player, "disguisecraft.player." + data.getFirst())) {
+			if (!player.hasPermission("disguisecraft.player." + data.getFirst())) {
 				return false;
 			}
 		} else if (type.isMob()) { // Check Mob
-			if (!plugin.hasPermissions(player, "disguisecraft.mob." + type.name().toLowerCase())) {
+			if (!player.hasPermission("disguisecraft.mob." + type.name().toLowerCase())) {
 				return false;
 			}
 			if (!data.isEmpty()) {
@@ -549,36 +547,36 @@ public class Disguise {
 						continue;
 					}
 					if (dat.startsWith("holding")) { // Check Holding Block
-						if (!plugin.hasPermissions(player, "disguisecraft.mob.enderman.hold")) {
+						if (!player.hasPermission("disguisecraft.mob.enderman.hold")) {
 							return false;
 						}
 						continue;
 					}
 					if (getSize() != null && dat.equals(getSize())) { // Check Size
-						if (!plugin.hasPermissions(player, "disguisecraft.mob." + type.name().toLowerCase() + ".size." + dat)) {
+						if (!player.hasPermission("disguisecraft.mob." + type.name().toLowerCase() + ".size." + dat)) {
 							return false;
 						}
 						continue;
 					}
 					if (getColor() != null && dat.equals(getColor())) { // Check Color
-						if (!plugin.hasPermissions(player, "disguisecraft.mob." + type.name().toLowerCase() + ".color." + dat)) {
+						if (!player.hasPermission("disguisecraft.mob." + type.name().toLowerCase() + ".color." + dat)) {
 							return false;
 						}
 						continue;
 					}
 					if (dat.equalsIgnoreCase("tabby") || dat.equalsIgnoreCase("tuxedo") || dat.equalsIgnoreCase("siamese")) { // Check Cat
-						if (!plugin.hasPermissions(player, "disguisecraft.mob." + type.name().toLowerCase() + ".cat." + dat)) {
+						if (!player.hasPermission("disguisecraft.mob." + type.name().toLowerCase() + ".cat." + dat)) {
 							return false;
 						}
 						continue;
 					}
 					if (dat.equalsIgnoreCase("librarian") || dat.equalsIgnoreCase("priest") || dat.equalsIgnoreCase("blacksmith") || dat.equalsIgnoreCase("butcher")) { // Check Occupation
-						if (!plugin.hasPermissions(player, "disguisecraft.mob." + type.name().toLowerCase() + ".occupation." + dat)) {
+						if (!player.hasPermission("disguisecraft.mob." + type.name().toLowerCase() + ".occupation." + dat)) {
 							return false;
 						}
 						continue;
 					}
-					if (!plugin.hasPermissions(player, "disguisecraft.mob." + type.name().toLowerCase() + "." + dat)) {
+					if (!player.hasPermission("disguisecraft.mob." + type.name().toLowerCase() + "." + dat)) {
 						return false;
 					}
 				}
