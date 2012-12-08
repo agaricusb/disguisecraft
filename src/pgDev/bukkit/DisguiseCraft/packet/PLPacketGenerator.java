@@ -2,19 +2,15 @@ package pgDev.bukkit.DisguiseCraft.packet;
 
 import java.util.logging.Level;
 
-import net.minecraft.server.DataWatcher;
-import net.minecraft.server.Packet20NamedEntitySpawn;
-import net.minecraft.server.Packet24MobSpawn;
-import net.minecraft.server.Packet29DestroyEntity;
-
 import org.bukkit.Location;
 
 import com.comphenix.protocol.ProtocolManager;
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.reflect.FieldAccessException;
 import com.comphenix.protocol.reflect.StructureModifier;
+import com.comphenix.protocol.wrappers.WrappedDataWatcher;
 
-import pgDev.bukkit.DisguiseCraft.DisguiseCraft;
+import pgDev.bukkit.DisguiseCraft.*;
 import pgDev.bukkit.DisguiseCraft.disguise.*;
 
 public class PLPacketGenerator extends DCPacketGenerator {
@@ -26,7 +22,7 @@ public class PLPacketGenerator extends DCPacketGenerator {
 	
 	// Packet creation methods
 	@Override
-	public Packet24MobSpawn getMobSpawnPacket(Location loc) {
+	public Object getMobSpawnPacket(Location loc) {
 		// Make values
 		int[] locVars = getLocationVariables(loc);
 		int eID = d.entityID;
@@ -47,7 +43,7 @@ public class PLPacketGenerator extends DCPacketGenerator {
 		// Make packet
 		PacketContainer pC = pM.createPacket(24);
 		try {
-			pC.getSpecificModifier(int.class).
+			pC.getIntegers().
 				write(0, eID).
 				write(1, mobID).
 				write(2, xPos).
@@ -57,7 +53,7 @@ public class PLPacketGenerator extends DCPacketGenerator {
 			DisguiseCraft.logger.log(Level.SEVERE, "PL: Unable to modify the integers for a " + d.type.name() +  " disguise!", e);
 		}
 		try {
-			pC.getSpecificModifier(byte.class).
+			pC.getBytes().
 				write(0, bodyYaw).
 				write(1, headPitch).
 				write(2, headYaw);
@@ -65,16 +61,16 @@ public class PLPacketGenerator extends DCPacketGenerator {
 			DisguiseCraft.logger.log(Level.SEVERE, "PL: Unable to modify the bytes for a " + d.type.name() +  " disguise!", e);
 		}
 		try {
-			pC.getSpecificModifier(DataWatcher.class).
-				write(0, d.metadata);
+			pC.getDataWatcherModifier().
+				write(0, new WrappedDataWatcher(d.metadata));
 		} catch (FieldAccessException e) {
 			DisguiseCraft.logger.log(Level.SEVERE, "PL: Unable to modify the metadata for a " + d.type.name() +  " disguise!", e);
 		}
-		return (Packet24MobSpawn) pC.getHandle();
+		return pC.getHandle();
 	}
 	
 	@Override
-	public Packet20NamedEntitySpawn getPlayerSpawnPacket(Location loc, short item) {
+	public Object getPlayerSpawnPacket(Location loc, short item) {
 		// Make Values
 		int[] locVars = getLocationVariables(loc);
 		int eID = d.entityID;
@@ -88,7 +84,7 @@ public class PLPacketGenerator extends DCPacketGenerator {
         // Make Packet
         PacketContainer pC = pM.createPacket(20);
 		try {
-			pC.getSpecificModifier(int.class).
+			pC.getIntegers().
 				write(0, eID).
 				write(1, xPos).
 				write(2, yPos).
@@ -98,31 +94,31 @@ public class PLPacketGenerator extends DCPacketGenerator {
 			DisguiseCraft.logger.log(Level.SEVERE, "PL: Unable to modify the integers for a player disguise!", e);
 		}
 		try {
-			pC.getSpecificModifier(String.class).
+			pC.getStrings().
 				write(0, name);
 		} catch (FieldAccessException e) {
 			DisguiseCraft.logger.log(Level.SEVERE, "PL: Unable to modify the name for a player disguise!", e);
 		}
 		try {
-			pC.getSpecificModifier(byte.class).
+			pC.getBytes().
 				write(0, yaw).
 				write(1, pitch);
 		} catch (FieldAccessException e) {
 			DisguiseCraft.logger.log(Level.SEVERE, "PL: Unable to modify the bytes for a player disguise!", e);
 		}
 		try {
-			pC.getSpecificModifier(DataWatcher.class).
-				write(0, d.metadata);
+			pC.getDataWatcherModifier().
+				write(0, new WrappedDataWatcher(d.metadata));
 		} catch (FieldAccessException e) {
 			DisguiseCraft.logger.log(Level.SEVERE, "PL: Unable to modify the metadata for a player disguise!", e);
 		}
-        return (Packet20NamedEntitySpawn) pC.getHandle();
+        return pC.getHandle();
 	}
 	
 	@Override
-	public Packet29DestroyEntity getEntityDestroyPacket() {
+	public Object getEntityDestroyPacket() {
 		PacketContainer pC = pM.createPacket(29);
-		StructureModifier<int[]> intPos = pC.getSpecificModifier(int[].class);
+		StructureModifier<int[]> intPos = pC.getIntegerArrays();
 		if (intPos.size() > 0) {
 			try {
 				int[] intArray = {d.entityID};
@@ -138,6 +134,6 @@ public class PLPacketGenerator extends DCPacketGenerator {
 				DisguiseCraft.logger.log(Level.SEVERE, "PL: Unable to modify the integer for a destroy packet!", e);
 			}
 		}
-		return (Packet29DestroyEntity) pC.getHandle();
+		return pC.getHandle();
 	}
 }

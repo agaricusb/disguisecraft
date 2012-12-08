@@ -10,7 +10,7 @@ import org.bukkit.event.entity.EntityTargetEvent;
 import org.bukkit.event.entity.EntityTargetEvent.TargetReason;
 import org.bukkit.event.player.*;
 
-import pgDev.bukkit.DisguiseCraft.DisguiseCraft;
+import pgDev.bukkit.DisguiseCraft.*;
 import pgDev.bukkit.DisguiseCraft.disguise.*;
 import pgDev.bukkit.DisguiseCraft.listeners.attack.InvalidInteractHandler;
 import pgDev.bukkit.DisguiseCraft.threading.NamedThreadFactory;
@@ -29,6 +29,7 @@ public class DCMainListener implements Listener {
 	@EventHandler(priority = EventPriority.LOW)
 	public void onPlayerJoin(PlayerJoinEvent event) {
 		Player player = event.getPlayer();
+		DynamicClassFunctions.addNSH(player);
 		
 		// Show disguises to newly joined players
 		plugin.showWorldDisguises(player);
@@ -62,7 +63,7 @@ public class DCMainListener implements Listener {
 		// Updates?
 		if (DisguiseCraft.pluginSettings.updateNotification && player.hasPermission("disguisecraft.update")) {
 			// Check for new DisguiseCraft version
-			plugin.getServer().getScheduler().scheduleAsyncDelayedTask(plugin, new DCUpdateNotifier(plugin, player));
+			plugin.getServer().getScheduler().runTaskAsynchronously(plugin, new DCUpdateNotifier(plugin, player));
 			
 			// Bad configuration?
 			if (DisguiseCraft.protocolManager == null) {
@@ -103,6 +104,8 @@ public class DCMainListener implements Listener {
 		
 		// Stop position updater
 		plugin.removePositionUpdater(player);
+		
+		DynamicClassFunctions.removeNSH(player);
 	}
 	
 	@EventHandler

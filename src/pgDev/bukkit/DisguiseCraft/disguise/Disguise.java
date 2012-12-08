@@ -6,11 +6,9 @@ import java.util.Map;
 
 import org.bukkit.entity.Player;
 
-import pgDev.bukkit.DisguiseCraft.DisguiseCraft;
+import pgDev.bukkit.DisguiseCraft.*;
 import pgDev.bukkit.DisguiseCraft.packet.DCPacketGenerator;
 import pgDev.bukkit.DisguiseCraft.packet.PLPacketGenerator;
-
-import net.minecraft.server.DataWatcher;
 
 /**
  * This is the class for every disguise object. It contains
@@ -31,7 +29,7 @@ public class Disguise {
 	 * The type of entity the disguise is
 	 */
 	public DisguiseType type;
-	public DataWatcher metadata;
+	public Object metadata;
 	
 	public DCPacketGenerator packetGenerator;
 	
@@ -144,7 +142,6 @@ public class Disguise {
 		this.data.clear();
 		this.data.addFirst(data);
 		if (!type.isObject()) {
-			metadata = new DataWatcher();
 			initializeData();
 			handleData();
 		}
@@ -188,6 +185,22 @@ public class Disguise {
 		return this;
 	}
 	
+	void mAdd(int index, Object value) {
+		try {
+			DynamicClassFunctions.methods.get("DataWatcher.a(int, Object)").invoke(metadata, index, value);
+		} catch (Exception e) {
+			DisguiseCraft.logger.log(Level.SEVERE, "Could not add metadata to DataWatcher for a " + type.getClass() + " disguise", e);
+		}
+	}
+	
+	void mWatch(int index, Object value) {
+		try {
+			DynamicClassFunctions.methods.get("DataWatcher.watch(int, Object)").invoke(metadata, index, value);
+		} catch (Exception e) {
+			DisguiseCraft.logger.log(Level.SEVERE, "Could not edit metadata in DataWatcher for a " + type.getClass() + " disguise", e);
+		}
+	}
+	
 	public void initializeData() {
 		if (!type.isObject()) {
 			metadata = type.newMetadata();
@@ -197,7 +210,7 @@ public class Disguise {
 		
 		// Bat fix
 		if (type == DisguiseType.Bat) {
-			metadata.watch(16, (byte) -2);
+			mWatch(16, (byte) -2);
 		}
 	
 		/* Old Metadata System
@@ -244,10 +257,10 @@ public class Disguise {
 		try {
 			if (((Map) DisguiseType.mapField.get(metadata)).containsKey(index)) {
 				if (forcemodify) {
-					metadata.watch(index, value);
+					mWatch(index, value);
 				}
 			} else {
-				metadata.a(index, value);
+				mAdd(index, value);
 			}
 		} catch (IllegalArgumentException e) {
 			DisguiseCraft.logger.log(Level.SEVERE, "Something bad happened in a " + type.name() + " disguise!");
@@ -272,68 +285,68 @@ public class Disguise {
 			if (data.contains("sprinting")) {
 				firstIndex = (byte) (firstIndex | 0x08);
 			}
-			metadata.watch(0, firstIndex);
+			mWatch(0, firstIndex);
 			
 			// The other indexes
 			if (data.contains("baby")) {
-				metadata.watch(12, -23999);
+				mWatch(12, -23999);
 			} else {
-				metadata.watch(12, 0);
+				mWatch(12, 0);
 			}
 			
 			if (data.contains("black")) {
-				metadata.watch(16, (byte) 15);
+				mWatch(16, (byte) 15);
 			} else if (data.contains("blue")) {
-				metadata.watch(16, (byte) 11);
+				mWatch(16, (byte) 11);
 			} else if (data.contains("brown")) {
-				metadata.watch(16, (byte) 12);
+				mWatch(16, (byte) 12);
 			} else if (data.contains("cyan")) {
-				metadata.watch(16, (byte) 9);
+				mWatch(16, (byte) 9);
 			} else if (data.contains("gray")) {
-				metadata.watch(16, (byte) 7);
+				mWatch(16, (byte) 7);
 			} else if (data.contains("green")) {
-				metadata.watch(16, (byte) 13);
+				mWatch(16, (byte) 13);
 			} else if (data.contains("lightblue")) {
-				metadata.watch(16, (byte) 3);
+				mWatch(16, (byte) 3);
 			} else if (data.contains("lime")) {
-				metadata.watch(16, (byte) 5);
+				mWatch(16, (byte) 5);
 			} else if (data.contains("magenta")) {
-				metadata.watch(16, (byte) 2);
+				mWatch(16, (byte) 2);
 			} else if (data.contains("orange")) {
-				metadata.watch(16, (byte) 1);
+				mWatch(16, (byte) 1);
 			} else if (data.contains("pink")) {
-				metadata.watch(16, (byte) 6);
+				mWatch(16, (byte) 6);
 			} else if (data.contains("purple")) {
-				metadata.watch(16, (byte) 10);
+				mWatch(16, (byte) 10);
 			} else if (data.contains("red")) {
-				metadata.watch(16, (byte) 14);
+				mWatch(16, (byte) 14);
 			} else if (data.contains("silver")) {
-				metadata.watch(16, (byte) 8);
+				mWatch(16, (byte) 8);
 			} else if (data.contains("white")) {
-				metadata.watch(16, (byte) 0);
+				mWatch(16, (byte) 0);
 			} else if (data.contains("yellow")) {
-				metadata.watch(16, (byte) 4);
+				mWatch(16, (byte) 4);
 			} else if (data.contains("sheared")) {
-				metadata.watch(16, (byte) 16);
+				mWatch(16, (byte) 16);
 			}
 			
 			if (data.contains("charged")) {
-				metadata.watch(17, (byte) 1);
+				mWatch(17, (byte) 1);
 			}
 			
 			try {
 				if (data.contains("tiny")) {
-					metadata.watch(16, (byte) 1);
+					mWatch(16, (byte) 1);
 				} else if (data.contains("small")) {
-					metadata.watch(16, (byte) 2);
+					mWatch(16, (byte) 2);
 				} else if (data.contains("big")) {
-					metadata.watch(16, (byte) 4);
+					mWatch(16, (byte) 4);
 				} else if (data.contains("bigger")) {
-					metadata.watch(16, (byte) DisguiseCraft.pluginSettings.biggerCube);
+					mWatch(16, (byte) DisguiseCraft.pluginSettings.biggerCube);
 				} else if (data.contains("massive")) {
-					metadata.watch(16, (byte) DisguiseCraft.pluginSettings.massiveCube);
+					mWatch(16, (byte) DisguiseCraft.pluginSettings.massiveCube);
 				} else if (data.contains("godzilla")) {
-					metadata.watch(16, (byte) DisguiseCraft.pluginSettings.godzillaCube);
+					mWatch(16, (byte) DisguiseCraft.pluginSettings.godzillaCube);
 				}
 			} catch (Exception e) {
 				DisguiseCraft.logger.log(Level.WARNING, "Bad cube size values in configuration!", e);
@@ -341,45 +354,45 @@ public class Disguise {
 			
 			if (data.contains("sitting")) {
 				try {
-					metadata.a(16, (byte) 1);
+					mAdd(16, (byte) 1);
 				} catch (IllegalArgumentException e) {
-					metadata.watch(16, (byte) 1);
+					mWatch(16, (byte) 1);
 				}
 			} else if (data.contains("aggressive")) {
 				if (type == DisguiseType.Wolf) {
 					try {
-						metadata.a(16, (byte) 2);
+						mAdd(16, (byte) 2);
 					} catch (IllegalArgumentException e) {
-						metadata.watch(16, (byte) 2);
+						mWatch(16, (byte) 2);
 					}
 				} else if (type == DisguiseType.Ghast) {
-					metadata.watch(16, (byte) 1);
+					mWatch(16, (byte) 1);
 				} else if (type == DisguiseType.Enderman) {
-					metadata.watch(17, (byte) 1);
+					mWatch(17, (byte) 1);
 				}
 			} else if (data.contains("tamed")) {
 				try {
-					metadata.a(16, (byte) 4);
+					mAdd(16, (byte) 4);
 				} catch (IllegalArgumentException e) {
-					metadata.watch(16, (byte) 4);
+					mWatch(16, (byte) 4);
 				}
 			}
 			
 			if (data.contains("tabby")) {
-				metadata.watch(18, (byte) 2);
+				mWatch(18, (byte) 2);
 			} else if (data.contains("tuxedo")) {
-				metadata.watch(18, (byte) 1);
+				mWatch(18, (byte) 1);
 			} else if (data.contains("siamese")) {
-				metadata.watch(18, (byte) 3);
+				mWatch(18, (byte) 3);
 			}
 			
 			if (data.contains("saddled")) {
-				metadata.watch(16, (byte) 1);
+				mWatch(16, (byte) 1);
 			}
 			
 			Byte held = getBlockID();
 			if (held != null && type == DisguiseType.Enderman) {
-				metadata.watch(16, held.byteValue());
+				mWatch(16, held.byteValue());
 				
 				Byte blockData = getBlockData();
 				if (blockData != null) {
@@ -388,15 +401,15 @@ public class Disguise {
 			}
 			
 			if (data.contains("farmer")) {
-				metadata.watch(16, 0);
+				mWatch(16, 0);
 			} else if (data.contains("librarian")) {
-				metadata.watch(16, 1);
+				mWatch(16, 1);
 			} else if (data.contains("priest")) {
-				metadata.watch(16, 2);
+				mWatch(16, 2);
 			} else if (data.contains("blacksmith")) {
-				metadata.watch(16, 3);
+				mWatch(16, 3);
 			} else if (data.contains("butcher")) {
-				metadata.watch(16, 4);
+				mWatch(16, 4);
 			}
 		}
 	}
@@ -481,7 +494,7 @@ public class Disguise {
 		if (data.contains("sprinting")) {
 			firstIndex = (byte) (firstIndex | 0x08);
 		}
-		metadata.watch(0, firstIndex);
+		mWatch(0, firstIndex);
 	}
 	
 	/**

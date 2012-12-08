@@ -2,8 +2,6 @@ package pgDev.bukkit.DisguiseCraft.disguise;
 
 import java.util.LinkedList;
 
-import net.minecraft.server.Packet;
-
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
@@ -35,8 +33,8 @@ public class DroppedDisguise extends Disguise {
 		this.location = location;
 	}
 	
-	public LinkedList<Packet> getSpawnPackets(Player player) {
-		LinkedList<Packet> packets = new LinkedList<Packet>();
+	public LinkedList<Object> getSpawnPackets(Player player) {
+		LinkedList<Object> packets = new LinkedList<Object>();
 		packets.add(packetGenerator.getSpawnPacket(player));
 		packets.add(packetGenerator.getEquipmentChangePacket((short) 0, player.getItemInHand()));
 		packets.addAll(packetGenerator.getArmorPackets(player));

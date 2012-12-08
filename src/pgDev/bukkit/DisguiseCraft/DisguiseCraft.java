@@ -11,13 +11,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import net.minecraft.server.Packet;
-import net.minecraft.server.Packet201PlayerInfo;
-
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
-import org.bukkit.craftbukkit.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.Plugin;
@@ -48,6 +44,9 @@ import com.comphenix.protocol.ProtocolManager;
  * @author PG Dev Team (Devil Boy)
  */
 public class DisguiseCraft extends JavaPlugin {
+	
+	// Fail check
+	public boolean failed = false;
 	
 	// Plugin Version
 	public String version;
@@ -87,115 +86,132 @@ public class DisguiseCraft extends JavaPlugin {
     public void onLoad() {
     	// Obtain logger
     	logger = getLogger();
+    	
+    	// Reflect
+    	if (!(DynamicClassFunctions.setPackages() && DynamicClassFunctions.setClasses()
+    			&& DynamicClassFunctions.setMethods() && DynamicClassFunctions.setFields())) {
+    		logger.log(Level.SEVERE, "Could not dynamically locate required resources!");
+    		failed = true;
+    	}
+    	
+    	// Datawatchers
+    	DisguiseType.getDataWatchers();
     }
     
     @Override
 	public void onEnable() {
-		// Check for the plugin directory (create if it does not exist)
-    	File pluginDir = new File(pluginMainDir);
-		if(!pluginDir.exists()) {
-			boolean dirCreation = pluginDir.mkdirs();
-			if (dirCreation) {
-				logger.log(Level.INFO, "New directory created!");
-			}
-		}
-		
-		// Load the Configuration
-    	try {
-        	Properties preSettings = new Properties();
-        	if ((new File(pluginConfigLocation)).exists()) {
-        		preSettings.load(new FileInputStream(new File(pluginConfigLocation)));
-        		pluginSettings = new DCConfig(preSettings, this);
-        		if (!pluginSettings.upToDate) {
-        			pluginSettings.createConfig();
-        			logger.log(Level.INFO, "Configuration updated!");
-        		}
-        	} else {
-        		pluginSettings = new DCConfig(preSettings, this);
-        		pluginSettings.createConfig();
-        		logger.log(Level.INFO, "Configuration created!");
-        	}
-        } catch (Exception e) {
-        	logger.log(Level.WARNING, "Could not load configuration!", e);
-        }
-		
-		// Register our events
-		PluginManager pm = getServer().getPluginManager();
-		pm.registerEvents(mainListener  = new DCMainListener(this), this);
-		if (!pluginSettings.movementUpdateThreading) {
-			pm.registerEvents(moveListener = new DCPlayerMoveListener(this), this);
-		}
-		for (Class<?> optional : pluginSettings.optionals.values()) {
-			if (optional != null) {
-				try {
-					pm.registerEvents((Listener) optional.getConstructor(this.getClass()).newInstance(this), this);
-				} catch (InstantiationException e) {
-					logger.log(Level.WARNING, "Could not instantiate a " + optional.getSimpleName() + " class", e);
-				} catch (IllegalAccessException e) {
-					logger.log(Level.WARNING, "Could not access constructor for a " + optional.getSimpleName() + " class", e);
-				} catch (IllegalArgumentException e) {
-					logger.log(Level.WARNING, "Illegal arguments for " + optional.getSimpleName() + " class constructor", e);
-				} catch (InvocationTargetException e) {
-					logger.log(Level.WARNING, "Something bad happened when constructing a " + optional.getSimpleName() + " class", e);
-				} catch (NoSuchMethodException e) {
-					logger.log(Level.WARNING, "Could not find constructor for a " + optional.getSimpleName() + " class", e);
-				} catch (SecurityException e) {
-					logger.log(Level.WARNING, "Could not access/construct a " + optional.getSimpleName() + " class", e);
-				}
-			}
-		}
-		
-		// Toss over the command events
-		DCCommandListener commandListener = new DCCommandListener(this);
-		String[] commandList = {"disguise", "undisguise"};
-        for (String command : commandList) {
+    	if (failed) {
+    		PluginDescriptionFile pdfFile = this.getDescription();
+            version = pdfFile.getVersion();
+            logger.log(Level.INFO, "Version " + version + " not enabled!");
+    	} else {
+    		// Check for the plugin directory (create if it does not exist)
+        	File pluginDir = new File(pluginMainDir);
+    		if(!pluginDir.exists()) {
+    			boolean dirCreation = pluginDir.mkdirs();
+    			if (dirCreation) {
+    				logger.log(Level.INFO, "New directory created!");
+    			}
+    		}
+    		
+    		// Load the Configuration
         	try {
-        		this.getCommand(command).setExecutor(commandListener);
-        	} catch (NullPointerException e) {
-        		logger.log(Level.INFO, "Another plugin is using the /" + command + " command. You will need to use one of the alternate commands.");
+            	Properties preSettings = new Properties();
+            	if ((new File(pluginConfigLocation)).exists()) {
+            		preSettings.load(new FileInputStream(new File(pluginConfigLocation)));
+            		pluginSettings = new DCConfig(preSettings, this);
+            		if (!pluginSettings.upToDate) {
+            			pluginSettings.createConfig();
+            			logger.log(Level.INFO, "Configuration updated!");
+            		}
+            	} else {
+            		pluginSettings = new DCConfig(preSettings, this);
+            		pluginSettings.createConfig();
+            		logger.log(Level.INFO, "Configuration created!");
+            	}
+            } catch (Exception e) {
+            	logger.log(Level.WARNING, "Could not load configuration!", e);
+            }
+    		
+    		// Register our events
+    		PluginManager pm = getServer().getPluginManager();
+    		pm.registerEvents(mainListener  = new DCMainListener(this), this);
+    		if (!pluginSettings.movementUpdateThreading) {
+    			pm.registerEvents(moveListener = new DCPlayerMoveListener(this), this);
+    		}
+    		for (Class<?> optional : pluginSettings.optionals.values()) {
+    			if (optional != null) {
+    				try {
+    					pm.registerEvents((Listener) optional.getConstructor(this.getClass()).newInstance(this), this);
+    				} catch (InstantiationException e) {
+    					logger.log(Level.WARNING, "Could not instantiate a " + optional.getSimpleName() + " class", e);
+    				} catch (IllegalAccessException e) {
+    					logger.log(Level.WARNING, "Could not access constructor for a " + optional.getSimpleName() + " class", e);
+    				} catch (IllegalArgumentException e) {
+    					logger.log(Level.WARNING, "Illegal arguments for " + optional.getSimpleName() + " class constructor", e);
+    				} catch (InvocationTargetException e) {
+    					logger.log(Level.WARNING, "Something bad happened when constructing a " + optional.getSimpleName() + " class", e);
+    				} catch (NoSuchMethodException e) {
+    					logger.log(Level.WARNING, "Could not find constructor for a " + optional.getSimpleName() + " class", e);
+    				} catch (SecurityException e) {
+    					logger.log(Level.WARNING, "Could not access/construct a " + optional.getSimpleName() + " class", e);
+    				}
+    			}
+    		}
+    		
+    		// Toss over the command events
+    		DCCommandListener commandListener = new DCCommandListener(this);
+    		String[] commandList = {"disguise", "undisguise"};
+            for (String command : commandList) {
+            	try {
+            		this.getCommand(command).setExecutor(commandListener);
+            	} catch (NullPointerException e) {
+            		logger.log(Level.INFO, "Another plugin is using the /" + command + " command. You will need to use one of the alternate commands.");
+            	}
+            }
+            
+            // Set up the protocol hook!
+            if (pluginSettings.disguisePVP) {
+            	if (!setupProtocol()) {
+            		logger.log(Level.WARNING, "You have \"disguisePVP\" enabled in the configuration, but do not have the ProtocolLib plugin installed! Players wearing disguises can not be attacked by melee!");
+            	}
+            }
+            
+            // Check for tab list no-hide
+            if (pluginSettings.noTabHide) {
+            	if (protocolManager == null) {
+            		logger.log(Level.SEVERE, "You have \"noTabHide\" enabled in the configuration, but do not have the ProtocolLib plugin installed!");
+            	} else {
+            		packetListener.setupTabListListener();
+            	}
+            }
+            
+            // Set up statistics!
+            setupMetrics();
+            
+            // Any mobs missing?
+            String missings = "";
+            for (DisguiseType mob : DisguiseType.missingDisguises) {
+            	if (missings.equals("")) {
+    				missings = mob.name();
+    			} else {
+    				missings = missings + ", " + mob.name();
+    			}
+            	
+            }
+            if (!missings.equals("")) {
+        		logger.log(Level.WARNING, "The following mobs are not present in this MineCraft version: " + missings);
         	}
-        }
-        
-        // Set up the protocol hook!
-        if (pluginSettings.disguisePVP) {
-        	if (!setupProtocol()) {
-        		logger.log(Level.WARNING, "You have \"disguisePVP\" enabled in the configuration, but do not have the ProtocolLib plugin installed! Players wearing disguises can not be attacked by melee!");
-        	}
-        }
-        
-        // Check for tab list no-hide
-        if (pluginSettings.noTabHide) {
-        	if (protocolManager == null) {
-        		logger.log(Level.SEVERE, "You have \"noTabHide\" enabled in the configuration, but do not have the ProtocolLib plugin installed!");
-        	} else {
-        		packetListener.setupTabListListener();
-        	}
-        }
-        
-        // Set up statistics!
-        setupMetrics();
-        
-        // Any mobs missing?
-        String missings = "";
-        for (DisguiseType mob : DisguiseType.missingDisguises) {
-        	if (missings.equals("")) {
-				missings = mob.name();
-			} else {
-				missings = missings + ", " + mob.name();
-			}
-        	
-        }
-        if (!missings.equals("")) {
-    		logger.log(Level.WARNING, "The following mobs are not present in this MineCraft version: " + missings);
+            
+            // Start up attack processing thread
+            getServer().getScheduler().scheduleSyncRepeatingTask(this, attackProcessor, 1, pluginSettings.attackInterval);
+            
+            // Heyo!
+            PluginDescriptionFile pdfFile = this.getDescription();
+            version = pdfFile.getVersion();
+            logger.log(Level.INFO, "Version " + version + " is enabled!");
     	}
-        
-        // Start up attack processing thread
-        getServer().getScheduler().scheduleSyncRepeatingTask(this, attackProcessor, 1, pluginSettings.attackInterval);
-        
-        // Heyo!
-        PluginDescriptionFile pdfFile = this.getDescription();
-        version = pdfFile.getVersion();
-        logger.log(Level.INFO, "Version " + version + " is enabled!");
+    	
 	}
 	
     @Override
@@ -345,7 +361,7 @@ public class DisguiseCraft extends JavaPlugin {
     		}
     		
     		// Observer Handling
-    		LinkedList<Packet> toObservers = new LinkedList<Packet>();
+    		LinkedList<Object> toObservers = new LinkedList<Object>();
     		DroppedDisguise disguise = new DroppedDisguise(disguiseDB.get(name), name, player.getLocation());
     		if (disguise.type.isPlayer()) {
     			toObservers.add(disguise.packetGenerator.getPlayerInfoPacket(player, false));
@@ -388,7 +404,7 @@ public class DisguiseCraft extends JavaPlugin {
     }
     
     public void sendDisguise(Player disguised, Player observer) {
-    	LinkedList<Packet> toSend = new LinkedList<Packet>();
+    	LinkedList<Object> toSend = new LinkedList<Object>();
 		Disguise disguise = disguiseDB.get(disguised.getName());
 		toSend.add(disguise.packetGenerator.getSpawnPacket(disguised));
 		if (disguise.type.isPlayer()) { // Player disguise
@@ -414,7 +430,7 @@ public class DisguiseCraft extends JavaPlugin {
     }
     
     public void sendUnDisguise(Player disguised, Player observer) {
-    	LinkedList<Packet> toSend = new LinkedList<Packet>();
+    	LinkedList<Object> toSend = new LinkedList<Object>();
 		Disguise disguise = disguiseDB.get(disguised.getName());
 		toSend.add(disguise.packetGenerator.getEntityDestroyPacket());
 		if (disguise.type.isPlayer() && !pluginSettings.noTabHide) {
@@ -429,7 +445,7 @@ public class DisguiseCraft extends JavaPlugin {
     }
     
     public void sendMovement(Player disguised, Player observer, Vector vector, Location to) {
-    	LinkedList<Packet> toSend = new LinkedList<Packet>();
+    	LinkedList<Object> toSend = new LinkedList<Object>();
 		Disguise disguise = disguiseDB.get(disguised.getName());
 		
 		// Block lock
@@ -448,11 +464,12 @@ public class DisguiseCraft extends JavaPlugin {
 		
 		if (pluginSettings.bandwidthReduction) {
 			if (movement.x < -128 || movement.x > 128 || movement.y < -128 || movement.y > 128 || movement.z < -128 || movement.z > 128) { // That's like a teleport right there!
-    			Packet packet = disguise.packetGenerator.getEntityTeleportPacket(to);
+    			Object packet = disguise.packetGenerator.getEntityTeleportPacket(to);
     			if (observer == null) {
 					sendPacketToWorld(disguised.getWorld(), packet);
 				} else {
-					((CraftPlayer) observer).getHandle().netServerHandler.sendPacket(packet);
+					//((CraftPlayer) observer).getHandle().netServerHandler.sendPacket(packet);
+					DynamicClassFunctions.sendPacket(observer, packet);
 				}
     		} else { // Relative movement
     			if (movement.x == 0 && movement.y == 0 && movement.z == 0) { // Just looked around
@@ -480,27 +497,30 @@ public class DisguiseCraft extends JavaPlugin {
 		}
     }
     
-    public void sendPacketToWorld(World world, Packet packet) {
+    public void sendPacketToWorld(World world, Object packet) {
     	for (Player observer : world.getPlayers()) {
-    		((CraftPlayer) observer).getHandle().netServerHandler.sendPacket(packet);
+    		//((CraftPlayer) observer).getHandle().netServerHandler.sendPacket(packet);
+    		DynamicClassFunctions.sendPacket(observer, packet);
     	}
     }
     
-    public void sendPacketsToWorld(World world, LinkedList<Packet> packets) {
+    public void sendPacketsToWorld(World world, LinkedList<Object> packets) {
     	for (Player observer : world.getPlayers()) {
-    		for (Packet p : packets) {
-    			((CraftPlayer) observer).getHandle().netServerHandler.sendPacket(p);
+    		for (Object p : packets) {
+    			//((CraftPlayer) observer).getHandle().netServerHandler.sendPacket(p);
+    			DynamicClassFunctions.sendPacket(observer, p);
     		}
     	}
     }
     
-    public void sendPacketsToObserver(Player observer, LinkedList<Packet> packets) {
-    	for (Packet p : packets) {
-			((CraftPlayer) observer).getHandle().netServerHandler.sendPacket(p);
+    public void sendPacketsToObserver(Player observer, LinkedList<Object> packets) {
+    	for (Object p : packets) {
+			//((CraftPlayer) observer).getHandle().netServerHandler.sendPacket(p);
+    		DynamicClassFunctions.sendPacket(observer, p);
 		}
     }
     
-    public void disguiseToWorld(World world, Player player, LinkedList<Packet> packets) {
+    public void disguiseToWorld(World world, Player player, LinkedList<Object> packets) {
     	for (Player observer : world.getPlayers()) {
 	    	if (observer != player) {
 	    		if (!observer.hasPermission("disguisecraft.seer")) {
@@ -509,18 +529,20 @@ public class DisguiseCraft extends JavaPlugin {
 					}
 					observer.hidePlayer(player);
 				}
-	    		for (Packet p : packets) {
-	    			((CraftPlayer) observer).getHandle().netServerHandler.sendPacket(p);
+	    		for (Object p : packets) {
+	    			//((CraftPlayer) observer).getHandle().netServerHandler.sendPacket(p);
+	    			DynamicClassFunctions.sendPacket(observer, p);
 	    		}
     		}
     	}
     }
     
-    public void undisguiseToWorld(World world, Player player, LinkedList<Packet> packets) {
+    public void undisguiseToWorld(World world, Player player, LinkedList<Object> packets) {
     	for (Player observer : world.getPlayers()) {
     		if (observer != player) {
-	    		for (Packet p : packets) {
-	    			((CraftPlayer) observer).getHandle().netServerHandler.sendPacket(p);
+	    		for (Object p : packets) {
+	    			//((CraftPlayer) observer).getHandle().netServerHandler.sendPacket(p);
+	    			DynamicClassFunctions.sendPacket(observer, p);
 	    		}
 				observer.showPlayer(player);
     		}
@@ -536,7 +558,12 @@ public class DisguiseCraft extends JavaPlugin {
 				}
 			}
 			if (pluginSettings.noTabHide) {
-				((CraftPlayer) observer).getHandle().netServerHandler.sendPacket(new Packet201PlayerInfo(disguisedName, true, ((CraftPlayer) disguised).getHandle().ping));
+				//((CraftPlayer) observer).getHandle().netServerHandler.sendPacket(new Packet201PlayerInfo(disguisedName, true, ((CraftPlayer) disguised).getHandle().ping));
+				LinkedList<PacketField> values = new LinkedList<PacketField>();
+				values.add(new PacketField("a", disguisedName));
+				values.add(new PacketField("b", true));
+				values.add(new PacketField("c", DynamicClassFunctions.getPlayerPing(disguised)));
+				DynamicClassFunctions.sendPacket(observer, DynamicClassFunctions.constructPacket("Packet201PlayerInfo", values));
 			}
 		}
     }

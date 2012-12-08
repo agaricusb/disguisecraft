@@ -1,5 +1,6 @@
 package pgDev.bukkit.DisguiseCraft.disguise;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -8,10 +9,7 @@ import java.util.logging.Level;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Vehicle;
 
-import net.minecraft.server.DataWatcher;
-import net.minecraft.server.Entity;
-import net.minecraft.server.WatchableObject;
-import pgDev.bukkit.DisguiseCraft.DisguiseCraft;
+import pgDev.bukkit.DisguiseCraft.*;
 
 /**
  * This is the list of possible disguises listed by
@@ -68,28 +66,27 @@ public enum DisguiseType {
 	 * the current Minecraft server version
 	 */
 	public static LinkedList<DisguiseType> missingDisguises = new LinkedList<DisguiseType>();
-	protected static HashMap<Byte, DataWatcher> modelData = new HashMap<Byte, DataWatcher>();
+	protected static HashMap<Byte, Object> modelData = new HashMap<Byte, Object>();
 	public static Field mapField;
 	
-	static {
+	public static void getDataWatchers() {
 		// Get model datawatchers
     	try {
-    		Field watcherField = net.minecraft.server.Entity.class.getDeclaredField("datawatcher");
+    		Field watcherField = DynamicClassFunctions.classes.get("Entity").getDeclaredField("datawatcher");
     		watcherField.setAccessible(true);
     		
 			for (DisguiseType m : values()) {
 				if (m.isMob()) {
-					String mobClass = "net.minecraft.server.Entity" + m.name();
+					String mobClass = DynamicClassFunctions.nmsPackage + ".Entity" + m.name();
 					if (m == DisguiseType.Giant) {
 	    				mobClass = mobClass + "Zombie";
 	    			}
 
 	        		try {
-	        			Entity ent = (Entity) Class.forName(mobClass).getConstructor(net.minecraft.server.World.class).newInstance((Object) null);
-	        			modelData.put(m.id, (DataWatcher) watcherField.get(ent));
+	        			Object ent = Class.forName(mobClass).getConstructor(DynamicClassFunctions.classes.get("World")).newInstance((Object) null);
+	        			modelData.put(m.id, watcherField.get(ent));
 	        		} catch (Exception e) {
 	        			missingDisguises.add(m);
-	        			
 	        		}
 				}
         	}
@@ -99,7 +96,7 @@ public enum DisguiseType {
     	
     	// Set map field
     	try {
-			mapField = DataWatcher.class.getDeclaredField("b");
+			mapField = DynamicClassFunctions.classes.get("DataWatcher").getDeclaredField("b");
 			mapField.setAccessible(true);
 		} catch (NoSuchFieldException e) {
 			DisguiseCraft.logger.log(Level.SEVERE, "Could not find datawatcher map field: b");
@@ -195,18 +192,24 @@ public enum DisguiseType {
 	
 	//@SuppressWarnings("rawtypes")
 	@SuppressWarnings("unchecked")
-	public DataWatcher newMetadata() {
+	public Object newMetadata() {
 		if (modelData.containsKey(id)) {
-			DataWatcher model = modelData.get(id);
-			DataWatcher w = new DataWatcher();
+			Object model = modelData.get(id);
+			Object w;
+			try {
+				w = DynamicClassFunctions.classes.get("DataWatcher").newInstance();
+			} catch (Exception e) {
+				DisguiseCraft.logger.log(Level.SEVERE, "Could not construct a new DataWatcher to insert values into", e);
+				return null;
+			}
 			
 			int i = 0;
 			for (Field f : model.getClass().getDeclaredFields()) {
 				f.setAccessible(true);
 				if (i == 1) {
 					try {
-						HashMap<Integer, WatchableObject> modelMap = ((HashMap<Integer, WatchableObject>) f.get(model));
-						HashMap<Integer, WatchableObject> newMap = ((HashMap<Integer, WatchableObject>) f.get(w));
+						HashMap<Integer, Object> modelMap = ((HashMap<Integer, Object>) f.get(model));
+						HashMap<Integer, Object> newMap = ((HashMap<Integer, Object>) f.get(w));
 						for (Integer index : modelMap.keySet()) {
 							newMap.put(index, copyWatchable(modelMap.get(index)));
 						}
@@ -224,12 +227,25 @@ public enum DisguiseType {
 			}
 			return w;
 		} else {
-			return new DataWatcher();
+			try {
+				return DynamicClassFunctions.classes.get("DataWatcher").newInstance();
+			} catch (Exception e) {
+				DisguiseCraft.logger.log(Level.SEVERE, "Could not construct a new DataWatcher", e);
+				return null;
+			}
 		}
 	}
 	
-	private WatchableObject copyWatchable(WatchableObject watchable) {
-		return new WatchableObject(watchable.c(), watchable.a(), watchable.b());
+	private Object copyWatchable(Object watchable) {
+		try {
+			Constructor<?> cotr = DynamicClassFunctions.classes.get("WatchableObject").getConstructor(int.class, int.class, Object.class);
+			return cotr.newInstance(DynamicClassFunctions.methods.get("WatchableObject.c()").invoke(watchable),
+					DynamicClassFunctions.methods.get("WatchableObject.a()").invoke(watchable),
+					DynamicClassFunctions.methods.get("WatchableObject.b()").invoke(watchable));
+		} catch (Exception e) {
+			DisguiseCraft.logger.log(Level.SEVERE, "Could not copy a WatchableObject", e);
+			return null;
+		}
 	}
 	
 	/**
