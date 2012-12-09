@@ -167,7 +167,7 @@ public class DynamicClassFunctions {
 	// Convert Player-Entity
 	public static Object convertPlayerEntity(Player player) {
 		try {
-			return methods.get("EntityPlayer.getHandle()").invoke(player);
+			return methods.get("CraftPlayer.getHandle()").invoke(player);
 		} catch (Exception e) {
 			DisguiseCraft.logger.log(Level.SEVERE, "Could not convert a Player-Entity", e);
 			return null;
@@ -230,7 +230,13 @@ public class DynamicClassFunctions {
 	public static Object constructEquipmentChangePacket(int entityID, short slot, ItemStack item) {
 		try {
 			Constructor<?> cotr = classes.get(equipmentChangePacketName).getConstructor(int.class, int.class, classes.get("ItemStack"));
-			return cotr.newInstance(entityID, slot, convertItemStack(item));
+			
+			Object itemStack = null;
+			if (item != null) {
+				itemStack = convertItemStack(item);
+			}
+			
+			return cotr.newInstance(entityID, slot, itemStack);
 		} catch (Exception e) {
 			DisguiseCraft.logger.log(Level.SEVERE, "Error constructing a " + equipmentChangePacketName, e);
 			return null;

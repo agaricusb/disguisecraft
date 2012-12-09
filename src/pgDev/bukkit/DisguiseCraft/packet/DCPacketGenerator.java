@@ -99,8 +99,6 @@ public class DCPacketGenerator {
 	
 	public Object getObjectSpawnPacket(Location loc) {
 		LinkedList<PacketField> values = new LinkedList<PacketField>();
-		int[] locVars = getLocationVariables(loc);
-		
 		int data = 1;
 		
 		// Block specific
@@ -117,6 +115,8 @@ public class DCPacketGenerator {
     			}
     		}
     	}
+    	
+    	int[] locVars = getLocationVariables(loc);
 		
 		values.add(new PacketField("a", d.entityID));
 		values.add(new PacketField("b", locVars[0]));

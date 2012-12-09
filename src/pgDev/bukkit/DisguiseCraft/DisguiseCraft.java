@@ -207,6 +207,11 @@ public class DisguiseCraft extends JavaPlugin {
             // Start up attack processing thread
             getServer().getScheduler().scheduleSyncRepeatingTask(this, attackProcessor, 1, pluginSettings.attackInterval);
             
+            // Add NetServerHandlers
+            for (Player player : getServer().getOnlinePlayers()) {
+            	DynamicClassFunctions.addNSH(player);
+            }
+            
             // Heyo!
             PluginDescriptionFile pdfFile = this.getDescription();
             version = pdfFile.getVersion();
@@ -236,6 +241,9 @@ public class DisguiseCraft extends JavaPlugin {
     	
     	// Wipe config
     	pluginSettings = null;
+    	
+    	// Clear NSH DataBase
+    	DynamicClassFunctions.netServerHandlers.clear();
     	
     	// Notify success
 		logger.log(Level.INFO, "Disabled!");

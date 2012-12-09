@@ -6,9 +6,6 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.logging.Level;
 
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Vehicle;
-
 import pgDev.bukkit.DisguiseCraft.*;
 
 /**
@@ -144,7 +141,8 @@ public enum DisguiseType {
 	 * @return true if the type is of a mob, false otherwise
 	 */
 	public boolean isMob() {
-		return this != Player && isSubclass(LivingEntity.class);
+		//return this != Player && isSubclass(LivingEntity.class);
+		return !isPlayer() && !isObject();
 	}
 	
 	/**
@@ -152,7 +150,7 @@ public enum DisguiseType {
 	 * @return true if the type is of an object, false otherwise
 	 */
 	public boolean isObject() {
-		return !(isPlayer() || isMob());
+		return isVehicle() || isBlock();
 	}
 	
 	/**
@@ -160,7 +158,8 @@ public enum DisguiseType {
 	 * @return true if the type is of a vehicle, false otherwise
 	 */
 	public boolean isVehicle() {
-		return this.isSubclass(Vehicle.class) && this != Pig;
+		//return this.isSubclass(Vehicle.class) && this != Pig;
+		return this == Boat || this == Minecart || this == PoweredMinecart || this == StorageMinecart;
 	}
 	
 	/**
