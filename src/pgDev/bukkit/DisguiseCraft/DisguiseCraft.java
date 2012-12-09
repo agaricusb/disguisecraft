@@ -104,6 +104,7 @@ public class DisguiseCraft extends JavaPlugin {
     		PluginDescriptionFile pdfFile = this.getDescription();
             version = pdfFile.getVersion();
             logger.log(Level.INFO, "Version " + version + " not enabled!");
+            setEnabled(false);
     	} else {
     		// Check for the plugin directory (create if it does not exist)
         	File pluginDir = new File(pluginMainDir);
