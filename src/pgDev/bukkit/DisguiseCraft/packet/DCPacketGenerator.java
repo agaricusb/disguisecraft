@@ -176,12 +176,12 @@ public class DCPacketGenerator {
 		encposY += movement.y;
 		encposZ += movement.z;
 		
-		values.add(new PacketField("a", d.entityID));
-		values.add(new PacketField("b", (byte) movement.x));
-		values.add(new PacketField("c", (byte) movement.y));
-		values.add(new PacketField("d", (byte) movement.z));
-		values.add(new PacketField("e", yp[0]));
-		values.add(new PacketField("f", yp[1]));
+		values.add(new PacketField("a", d.entityID).setSuper(1));
+		values.add(new PacketField("b", (byte) movement.x).setSuper(1));
+		values.add(new PacketField("c", (byte) movement.y).setSuper(1));
+		values.add(new PacketField("d", (byte) movement.z).setSuper(1));
+		values.add(new PacketField("e", yp[0]).setSuper(1));
+		values.add(new PacketField("f", yp[1]).setSuper(1));
 		
 		return DynamicClassFunctions.constructPacket("Packet33RelEntityMoveLook", values);
 	}
