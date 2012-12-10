@@ -1,6 +1,6 @@
 name: DisguiseCraft
 main: pgDev.bukkit.DisguiseCraft.DisguiseCraft
-version: 4.0
+version: 4.1
 author: PG Dev Team
 authors: [Tux2, DrKabob, Devil Boy]
 description: Turn into any mob you want!
@@ -28,9 +28,14 @@ permissions:
             disguisecraft.notarget: true
             disguisecraft.notarget.strict: true
             disguisecraft.burning: true
+            disguisecraft.drop: true
+            disguisecraft.nopickup: true
+            disguisecraft.blocklock: true
             disguisecraft.player: true
             disguisecraft.mob.*: true
             disguisecraft.object.*: true
+            disguisecraft.nopickup: true
+            disguisecraft.blocklock: true
     disguisecraft.update:
         default: op
         description: Can be notified of plugin updates.

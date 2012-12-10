@@ -149,8 +149,6 @@ public class DynamicClassFunctions {
 			} catch (Exception e) {
 				DisguiseCraft.logger.log(Level.SEVERE, "Error sending packet to player: " + player.getName(), e);
 			}
-		} else {
-			DisguiseCraft.logger.log(Level.WARNING, "NSH not found for player: " + player.getName());
 		}
 	}
 	
