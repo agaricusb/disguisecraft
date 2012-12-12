@@ -7,6 +7,8 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.logging.Level;
 
+import org.bukkit.Bukkit;
+import org.bukkit.Server;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
@@ -19,6 +21,7 @@ public class DynamicClassFunctions {
 	
 	public static HashMap<Player, Object> netServerHandlers = new HashMap<Player, Object>();
 
+	/*
 	public static boolean setPackages() {
 		final Package[] packages = Package.getPackages();
 		for (Package p : packages) {
@@ -41,6 +44,23 @@ public class DynamicClassFunctions {
 					} catch (ClassNotFoundException e) {
 					}
 				}
+			}
+		}
+		return false;
+	}*/
+	
+	public static boolean setPackages() {
+		Server craftServer = Bukkit.getServer();
+		if (craftServer != null) {
+			try {
+				Class<?> craftClass = craftServer.getClass();
+				Method getHandle = craftClass.getMethod("getHandle");
+				Class<?> returnType = getHandle.getReturnType();
+
+				obcPackage = craftClass.getPackage().getName();
+				nmsPackage = returnType.getPackage().getName();
+				return true;
+			} catch (Exception e) {
 			}
 		}
 		return false;
