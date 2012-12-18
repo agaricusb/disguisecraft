@@ -44,12 +44,10 @@ import com.comphenix.protocol.ProtocolManager;
  * @author PG Dev Team (Devil Boy)
  */
 public class DisguiseCraft extends JavaPlugin {
+	public PluginDescriptionFile pdfFile;;
 	
 	// Fail check
-	public boolean failed = false;
-	
-	// Plugin Version
-	public String version;
+	public boolean loadFailure = false;
 	
 	// File Locations
     static String pluginMainDir = "./plugins/DisguiseCraft";
@@ -84,6 +82,9 @@ public class DisguiseCraft extends JavaPlugin {
     
     @Override
     public void onLoad() {
+    	// Get plugin description
+    	pdfFile = this.getDescription();
+    	
     	// Obtain logger
     	logger = getLogger();
     	
@@ -91,7 +92,7 @@ public class DisguiseCraft extends JavaPlugin {
     	if (!(DynamicClassFunctions.setPackages() && DynamicClassFunctions.setClasses()
     			&& DynamicClassFunctions.setMethods() && DynamicClassFunctions.setFields())) {
     		logger.log(Level.SEVERE, "Could not dynamically locate required resources!");
-    		failed = true;
+    		loadFailure = true;
     	}
     	
     	// Datawatchers
@@ -100,10 +101,8 @@ public class DisguiseCraft extends JavaPlugin {
     
     @Override
 	public void onEnable() {
-    	if (failed) {
-    		PluginDescriptionFile pdfFile = this.getDescription();
-            version = pdfFile.getVersion();
-            logger.log(Level.INFO, "Version " + version + " not enabled!");
+    	if (loadFailure) {
+            logger.log(Level.WARNING, "There was an issue loading resources");
             setEnabled(false);
     	} else {
     		// Check for the plugin directory (create if it does not exist)
@@ -213,40 +212,40 @@ public class DisguiseCraft extends JavaPlugin {
             }
             
             // Heyo!
-            PluginDescriptionFile pdfFile = this.getDescription();
-            version = pdfFile.getVersion();
-            logger.log(Level.INFO, "Version " + version + " is enabled!");
+            logger.log(Level.INFO, "Version " + pdfFile.getVersion() + " is enabled!");
     	}
     	
 	}
 	
     @Override
 	public void onDisable() {
-    	// Stop executor threads
-    	mainListener.invalidInteractExecutor.shutdown();
-    	
-    	// Stop sync threads
-    	getServer().getScheduler().cancelTasks(this);
-    	
-    	// Wipe dropped disguises
-    	for (Integer i : droppedDisguises.keySet()) {
-    		DroppedDisguise dd = droppedDisguises.get(i);
-    		sendPacketToWorld(dd.location.getWorld(), dd.packetGenerator.getEntityDestroyPacket());
+    	if (!loadFailure) {
+    		// Stop executor threads
+        	mainListener.invalidInteractExecutor.shutdown();
+        	
+        	// Stop sync threads
+        	getServer().getScheduler().cancelTasks(this);
+        	
+        	// Wipe dropped disguises
+        	for (Integer i : droppedDisguises.keySet()) {
+        		DroppedDisguise dd = droppedDisguises.get(i);
+        		sendPacketToWorld(dd.location.getWorld(), dd.packetGenerator.getEntityDestroyPacket());
+        	}
+        	
+        	// Remove disguises
+        	for (Player disguised : disguiseIDs.values()) {
+        		unDisguisePlayer(disguised);
+        	}
+        	
+        	// Wipe config
+        	pluginSettings = null;
+        	
+        	// Clear NSH DataBase
+        	DynamicClassFunctions.netServerHandlers.clear();
     	}
-    	
-    	// Remove disguises
-    	for (Player disguised : disguiseIDs.values()) {
-    		unDisguisePlayer(disguised);
-    	}
-    	
-    	// Wipe config
-    	pluginSettings = null;
-    	
-    	// Clear NSH DataBase
-    	DynamicClassFunctions.netServerHandlers.clear();
     	
     	// Notify success
-		logger.log(Level.INFO, "Disabled!");
+		logger.log(Level.INFO, "Version " + pdfFile.getVersion() + " disabled!");
 	}
     
     // Stats

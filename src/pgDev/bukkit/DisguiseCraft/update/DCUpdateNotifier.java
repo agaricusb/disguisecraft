@@ -21,7 +21,7 @@ public class DCUpdateNotifier  implements Runnable {
 		if (player.isOnline()) {
 			String update = DCUpdateChecker.getLatestVersion();
 			try {
-				if (Integer.parseInt(plugin.version.replace(".", "")) < Integer.parseInt(update.split(" ")[0].replace("v", "").replace(".", ""))) {
+				if (Integer.parseInt(plugin.pdfFile.getVersion().replace(".", "")) < Integer.parseInt(update.split(" ")[0].replace("v", "").replace(".", ""))) {
 					player.sendMessage(ChatColor.BLUE + "There is a new update for DisguiseCraft available: " + update);
 				}
 			} catch (NumberFormatException e) {

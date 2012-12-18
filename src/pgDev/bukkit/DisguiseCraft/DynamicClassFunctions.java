@@ -113,7 +113,17 @@ public class DynamicClassFunctions {
 		try {
 			// org.bukkit.craftbukkit
 			methods.put("CraftPlayer.getHandle()", classes.get("CraftPlayer").getDeclaredMethod("getHandle"));
-			methods.put("CraftItemStack.getHandle()", classes.get("CraftItemStack").getDeclaredMethod("getHandle"));
+			try {
+				methods.put("CraftItemStack.getHandle()", classes.get("CraftItemStack").getDeclaredMethod("getHandle"));
+			} catch (Exception e) {
+			}
+			try {
+				methods.put("CraftItemStack.asNMSCopy(ItemStack)", classes.get("CraftItemStack").getDeclaredMethod("asNMSCopy", ItemStack.class));
+			} catch (Exception e) {
+				if (!methods.containsKey("CraftItemStack.getHandle()")) {
+					throw e;
+				}
+			}
 			
 			// net.minecraft.server
 			methods.put("NetServerHandler.sendPacket(Packet)", classes.get("NetServerHandler").getDeclaredMethod("sendPacket", classes.get("Packet")));
@@ -195,7 +205,11 @@ public class DynamicClassFunctions {
 	// Convert ItemStack
 	public static Object convertItemStack(ItemStack item) {
 		try {
-			return methods.get("CraftItemStack.getHandle()").invoke(item);
+			if (methods.containsKey("CraftItemStack.getHandle()")) {
+				return methods.get("CraftItemStack.getHandle()").invoke(item);
+			} else {
+				return methods.get("CraftItemStack.asNMSCopy(ItemStack)").invoke(null, item);
+			}
 		} catch (Exception e) {
 			DisguiseCraft.logger.log(Level.SEVERE, "Could not convert an ItemStack", e);
 			return null;
