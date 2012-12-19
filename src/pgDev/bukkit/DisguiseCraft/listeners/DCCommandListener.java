@@ -11,7 +11,6 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
-import org.bukkit.entity.Animals;
 import org.bukkit.entity.Player;
 import org.bukkit.permissions.Permission;
 
@@ -260,7 +259,7 @@ public class DCCommandListener implements CommandExecutor, TabCompleter {
 					if (type == null) {
 						sender.sendMessage(ChatColor.RED + "That mob type was not recognized.");
 					} else {
-						if (type.isSubclass(Animals.class) || type == DisguiseType.Villager) {
+						if (type.canBeBaby()) {
 							if (isConsole || player.hasPermission("disguisecraft.mob." + type.name().toLowerCase() + ".baby")) {
 								if (plugin.disguiseDB.containsKey(player.getName())) {
 									Disguise disguise = plugin.disguiseDB.get(player.getName()).clone();
@@ -302,7 +301,7 @@ public class DCCommandListener implements CommandExecutor, TabCompleter {
 							if (disguise.type.isPlayer()) {
 								sender.sendMessage(ChatColor.RED + "Player disguises cannot turn into babies.");
 							} else {
-								if (disguise.type.isSubclass(Animals.class) || disguise.type == DisguiseType.Villager) {
+								if (disguise.type.canBeBaby()) {
 									disguise.addSingleData("baby");
 									
 									// Check for permissions
@@ -984,7 +983,7 @@ public class DCCommandListener implements CommandExecutor, TabCompleter {
 				} else {
 					sender.sendMessage(ChatColor.RED + "Must first be disguised");
 				}
-			} else if (args[0].equalsIgnoreCase("librarian") || args[0].equalsIgnoreCase("priest") || args[0].equalsIgnoreCase("blacksmith") || args[0].equalsIgnoreCase("butcher")) {
+			} else if (args[0].equalsIgnoreCase("librarian") || args[0].equalsIgnoreCase("priest") || args[0].equalsIgnoreCase("blacksmith") || args[0].equalsIgnoreCase("butcher") || args[0].equalsIgnoreCase("generic")) {
 				if (args.length > 1) { // New disguise
 					DisguiseType type = DisguiseType.fromString(args[1]);
 					if (type == null) {
@@ -1044,6 +1043,8 @@ public class DCCommandListener implements CommandExecutor, TabCompleter {
 											disguise.data.remove("blacksmith");
 										} else if (disguise.data.contains("butcher") && !args[0].equals("butcher")) {
 											disguise.data.remove("butcher");
+										} else if (disguise.data.contains("generic") && !args[0].equals("generic")) {
+											disguise.data.remove("generic");
 										}
 									}
 									disguise.addSingleData(args[0].toLowerCase());
@@ -1066,6 +1067,77 @@ public class DCCommandListener implements CommandExecutor, TabCompleter {
 								} else {
 									sender.sendMessage(ChatColor.RED + "A " + disguise.type.name() + " cannot be a " + args[0].toLowerCase());
 								}
+							}
+						}
+					} else {
+						sender.sendMessage(ChatColor.RED + "Not currently disguised. A DisguiseType must be given.");
+					}
+				}
+			} else if (args[0].equalsIgnoreCase("infected")) {
+				if (args.length > 1) { // New disguise
+					DisguiseType type = DisguiseType.fromString(args[1]);
+					if (type == null) {
+						sender.sendMessage(ChatColor.RED + "That mob type was not recognized.");
+					} else {
+						if (type == DisguiseType.Zombie || type == DisguiseType.PigZombie) {
+							if (isConsole || player.hasPermission("disguisecraft.mob." + type.name().toLowerCase() + ".infected")) {
+								if (plugin.disguiseDB.containsKey(player.getName())) {
+									Disguise disguise = plugin.disguiseDB.get(player.getName()).clone();
+									disguise.setType(type).setSingleData("infected");
+									
+									// Pass the event
+									PlayerDisguiseEvent ev = new PlayerDisguiseEvent(player, disguise);
+									plugin.getServer().getPluginManager().callEvent(ev);
+									if (ev.isCancelled()) return true;
+									
+									plugin.changeDisguise(player, disguise);
+								} else {
+									Disguise disguise = new Disguise(plugin.getNextAvailableID(), "infected", type);
+									
+									// Pass the event
+									PlayerDisguiseEvent ev = new PlayerDisguiseEvent(player, disguise);
+									plugin.getServer().getPluginManager().callEvent(ev);
+									if (ev.isCancelled()) return true;
+									
+									plugin.disguisePlayer(player, disguise);
+								}
+								player.sendMessage(ChatColor.GOLD + "You have been disguised as an Infected " + plugin.disguiseDB.get(player.getName()).type.name());
+								if (isConsole) {
+									sender.sendMessage(player.getName() + " was disguised as an Infected " + plugin.disguiseDB.get(player.getName()).type.name());
+								}
+							} else {
+								player.sendMessage(ChatColor.RED + "You do not have permission to disguise as an Infected " + type.name());
+							}
+						} else {
+							sender.sendMessage(ChatColor.RED + "A " + type.name() + " cannot be infected.");
+						}
+					}
+				} else { // Current mob
+					if (plugin.disguiseDB.containsKey(player.getName())) {
+						Disguise disguise = plugin.disguiseDB.get(player.getName()).clone();
+						if (disguise.data != null && disguise.data.contains("infected")) {
+							sender.sendMessage(ChatColor.RED + "Already infected.");
+						} else {
+							if (disguise.type == DisguiseType.Zombie || disguise.type == DisguiseType.PigZombie) {
+								disguise.addSingleData("infected");
+								
+								// Check for permissions
+								if (isConsole || player.hasPermission("disguisecraft.mob." + disguise.type.name().toLowerCase() + ".infected")) {
+									// Pass the event
+									PlayerDisguiseEvent ev = new PlayerDisguiseEvent(player, disguise);
+									plugin.getServer().getPluginManager().callEvent(ev);
+									if (ev.isCancelled()) return true;
+									
+									plugin.changeDisguise(player, disguise);
+									player.sendMessage(ChatColor.GOLD + "You have been disguised as an Infected " + disguise.type.name());
+									if (isConsole) {
+										sender.sendMessage(player.getName() + " was disguised as an Infected " + disguise.type.name());
+									}
+								} else {
+									player.sendMessage(ChatColor.RED + "You do not have the permissions to disguise as an Infected " + disguise.type.name());
+								}
+							} else {
+								sender.sendMessage(ChatColor.RED + "A " + disguise.type.name() + " cannot be infected.");
 							}
 						}
 					} else {

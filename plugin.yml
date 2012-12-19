@@ -106,6 +106,7 @@ permissions:
             disguisecraft.mob.pig.baby: true
             disguisecraft.mob.pig.saddled: true
             disguisecraft.mob.pigzombie: true
+            disguisecraft.mob.pigzombie.baby: true
             disguisecraft.mob.sheep: true
             disguisecraft.mob.sheep.baby: true
             disguisecraft.mob.sheep.color.*: true
@@ -126,6 +127,8 @@ permissions:
             disguisecraft.mob.wolf.tamed: true
             disguisecraft.mob.wolf.aggressive: true
             disguisecraft.mob.zombie: true
+            disguisecraft.mob.zombie.baby: true
+            disguisecraft.mob.zombie.infected: true
     disguisecraft.mob.bat:
         default: op
         description: Can disguise as a bat.
@@ -245,6 +248,9 @@ permissions:
     disguisecraft.mob.pigzombie:
         default: op
         description: Can disguise as a zombie pigman.
+    disguisecraft.mob.pigzombie.baby:
+        default: op
+        description: Can disguise as a baby zombie pigman.
     disguisecraft.mob.sheep:
         default: op
         description: Can disguise as a sheep.
@@ -383,6 +389,7 @@ permissions:
             disguisecraft.mob.villager.occupation.priest: true
             disguisecraft.mob.villager.occupation.blacksmith: true
             disguisecraft.mob.villager.occupation.butcher: true
+            disguisecraft.mob.villager.occupation.generic: true
     disguisecraft.mob.villager.occupation.librarian:
         default: op
         description: Can disguise as a librarian villager.
@@ -395,6 +402,9 @@ permissions:
     disguisecraft.mob.villager.occupation.butcher:
         default: op
         description: Can disguise as a butcher villager.
+    disguisecraft.mob.villager.occupation.generic:
+        default: op
+        description: Can disguise as a generic villager.
     disguisecraft.mob.witch:
         default: op
         description: Can disguise as a witch.
@@ -416,6 +426,12 @@ permissions:
     disguisecraft.mob.zombie:
         default: op
         description: Can disguise as a zombie.
+    disguisecraft.mob.zombie.baby:
+        default: op
+        description: Can disguise as a baby zombie.\
+    disguisecraft.mob.zombie.infected:
+        default: op
+        description: Can disguise as an infected zombie.
     disguisecraft.object.*:
         default: op
         description: Can disguise as any object.

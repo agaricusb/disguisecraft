@@ -212,44 +212,6 @@ public class Disguise {
 		if (type == DisguiseType.Bat) {
 			mWatch(16, (byte) -2);
 		}
-	
-		/* Old Metadata System
-		metadata = new DataWatcher();
-		metadata.a(0, (Object) (byte) 0);
-		
-		if (mob == MobType.Zombie || mob == MobType.PigZombie) {
-			metadata.a(12, (Object) (byte) 0);
-			metadata.a(13, (Object) (byte) 0);
-			metadata.a(14, (Object) (byte) 0);
-		} else {
-			metadata.a(12, (Object) 0);
-		}
-		
-		if (mob == MobType.Sheep || mob == MobType.Pig || mob == MobType.Ghast || mob == MobType.Enderman || mob == MobType.Bat) {
-			metadata.a(16, (Object) (byte) 0);
-		} else if (mob == MobType.Slime || mob == MobType.MagmaCube) {
-			metadata.a(16, (Object) (byte) 3);
-		} else if (mob == MobType.Villager) {
-			metadata.a(16, (Object) 0);
-		} else if (mob == MobType.EnderDragon || mob == MobType.Wither) {
-			metadata.a(16, (Object) 100);
-		}
-		
-		if (mob == MobType.Creeper || mob == MobType.Enderman) {
-			metadata.a(17, (Object) (byte) 0);
-		}
-		if (mob == MobType.Ocelot) {
-			metadata.a(18, (Object) (byte) 0);
-		}
-		if (mob == MobType.Witch) {
-			metadata.a(21, (Object) (byte) 0);
-		}
-		if (mob == MobType.Wither) {
-			metadata.a(17, (Object) 0);
-			metadata.a(18, (Object) 0);
-			metadata.a(19, (Object) 0);
-			metadata.a(20, (Object) 0);
-		}*/
 	}
 	
 	@SuppressWarnings("rawtypes")
@@ -289,7 +251,11 @@ public class Disguise {
 			
 			// The other indexes
 			if (data.contains("baby")) {
-				mWatch(12, -23999);
+				if (type == DisguiseType.Zombie || type == DisguiseType.PigZombie) {
+					mWatch(12, (byte) 1);
+				} else {
+					mWatch(12, -23999);
+				}
 			} else {
 				mWatch(12, 0);
 			}
@@ -410,6 +376,12 @@ public class Disguise {
 				mWatch(16, 3);
 			} else if (data.contains("butcher")) {
 				mWatch(16, 4);
+			} else if (data.contains("generic")) {
+				mWatch(16, 5);
+			}
+			
+			if (data.contains("infected")) {
+				mWatch(13, (byte) 1);
 			}
 		}
 	}

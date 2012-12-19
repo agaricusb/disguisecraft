@@ -6,6 +6,8 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.logging.Level;
 
+import org.bukkit.entity.Animals;
+
 import pgDev.bukkit.DisguiseCraft.*;
 
 /**
@@ -171,6 +173,15 @@ public enum DisguiseType {
 	}
 	
 	/**
+	 * Checks if this disguise has a baby form.
+	 * @return true if it can be a baby, false otherwise
+	 */
+	public boolean canBeBaby() {
+		return isSubclass(Animals.class) || this == Villager
+				|| this == Zombie || this == PigZombie;
+	}
+	
+	/**
 	 * Get the DisguiseType from its name
 	 * Works like valueOf, but not case sensitive
 	 * @param text The string to match with a DisguiseType
@@ -255,5 +266,5 @@ public enum DisguiseType {
 		"gray, green, lightblue, lime, magenta, orange, pink, purple, red, " +
 		"silver, white, yellow, sheared, charged, tiny, small, big, bigger, massive, godzilla, " +
 		"tamed, aggressive, tabby, tuxedo, siamese, burning, saddled, " +
-		"librarian, priest, blacksmith, butcher";
+		"librarian, priest, blacksmith, butcher, generic, infected";
 }
