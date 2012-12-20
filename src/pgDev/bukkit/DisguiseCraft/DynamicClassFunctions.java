@@ -21,34 +21,6 @@ public class DynamicClassFunctions {
 	
 	public static HashMap<Player, Object> netServerHandlers = new HashMap<Player, Object>();
 
-	/*
-	public static boolean setPackages() {
-		final Package[] packages = Package.getPackages();
-		for (Package p : packages) {
-			String name = p.getName();
-			if (name.startsWith(nmsPrefix)) {
-				try {
-					nmsPackage = Class.forName(name + ".NetServerHandler").getPackage().getName();
-					if (!nmsPackage.equals("") && !obcPackage.equals("")) {
-						return true;
-					}
-				} catch (ClassNotFoundException e) {
-				}
-			} else if (name.startsWith(obcPrefix)) {
-				if (!name.contains("libs")) {
-					try {
-						obcPackage = Class.forName(name + ".CraftServer").getPackage().getName();
-						if (!nmsPackage.equals("") && !obcPackage.equals("")) {
-							return true;
-						}
-					} catch (ClassNotFoundException e) {
-					}
-				}
-			}
-		}
-		return false;
-	}*/
-	
 	public static boolean setPackages() {
 		Server craftServer = Bukkit.getServer();
 		if (craftServer != null) {
@@ -75,7 +47,17 @@ public class DynamicClassFunctions {
 			
 			// net.minecraft.server
 			classes.put("EntityPlayer", Class.forName(nmsPackage + ".EntityPlayer"));
-			classes.put("NetServerHandler", Class.forName(nmsPackage + ".NetServerHandler"));
+			try {
+				classes.put("NetServerHandler", Class.forName(nmsPackage + ".NetServerHandler"));
+			} catch (Exception e) {
+			}
+			try {
+				classes.put("PlayerConnection", Class.forName(nmsPackage + ".PlayerConnection"));
+			} catch (Exception e) {
+				if (!classes.containsKey("NetServerHandler")) {
+					throw e;
+				}
+			}
 			classes.put("Packet", Class.forName(nmsPackage + ".Packet"));
 			classes.put("MathHelper", Class.forName(nmsPackage + ".MathHelper"));
 			classes.put("DataWatcher", Class.forName(nmsPackage + ".DataWatcher"));
@@ -102,8 +84,8 @@ public class DynamicClassFunctions {
 			classes.put("Packet22Collect", Class.forName(nmsPackage + ".Packet22Collect"));
 			classes.put("Packet28EntityVelocity", Class.forName(nmsPackage + ".Packet28EntityVelocity"));
 			return true;
-		} catch (ClassNotFoundException e) {
-			DisguiseCraft.logger.log(Level.SEVERE, "Could not find a required class", e);
+		} catch (Exception e) {
+			DisguiseCraft.logger.log(Level.SEVERE, "Could not aquire a required class", e);
 			return false;
 		}
 	}
@@ -126,7 +108,11 @@ public class DynamicClassFunctions {
 			}
 			
 			// net.minecraft.server
-			methods.put("NetServerHandler.sendPacket(Packet)", classes.get("NetServerHandler").getDeclaredMethod("sendPacket", classes.get("Packet")));
+			if (classes.containsKey("NetServerHandler")) {
+				methods.put("NetServerHandler.sendPacket(Packet)", classes.get("NetServerHandler").getDeclaredMethod("sendPacket", classes.get("Packet")));
+			} else {
+				methods.put("PlayerConnection.sendPacket(Packet)", classes.get("PlayerConnection").getDeclaredMethod("sendPacket", classes.get("Packet")));
+			}
 			methods.put("MathHelper.floor(double)", classes.get("MathHelper").getDeclaredMethod("floor", double.class));
 			methods.put("WatchableObject.a()", classes.get("WatchableObject").getDeclaredMethod("a"));
 			methods.put("WatchableObject.b()", classes.get("WatchableObject").getDeclaredMethod("b"));
@@ -144,7 +130,11 @@ public class DynamicClassFunctions {
 	public static HashMap<String, Field> fields = new HashMap<String, Field>();
 	public static boolean setFields() {
 		try {
-			fields.put("EntityPlayer.netServerHandler", classes.get("EntityPlayer").getDeclaredField("netServerHandler"));
+			if (classes.containsKey("NetServerHandler")) {
+				fields.put("EntityPlayer.netServerHandler", classes.get("EntityPlayer").getDeclaredField("netServerHandler"));
+			} else {
+				fields.put("EntityPlayer.playerConnection", classes.get("EntityPlayer").getDeclaredField("playerConnection"));
+			}
 			fields.put("EntityPlayer.ping", classes.get("EntityPlayer").getDeclaredField("ping"));
 			return true;
 		} catch (Exception e) {
@@ -159,11 +149,17 @@ public class DynamicClassFunctions {
 	
 	
 	public static void addNSH(Player player) {
-		try {
-			Object entityPlayer = methods.get("CraftPlayer.getHandle()").invoke(player);
-			netServerHandlers.put(player, fields.get("EntityPlayer.netServerHandler").get(entityPlayer));
-		} catch (Exception e) {
-			DisguiseCraft.logger.log(Level.SEVERE, "Could not obtain NSH of player: " + player.getName(), e);
+		if (player.getClass() == classes.get("EntityPlayer")) {
+			try {
+				Object entityPlayer = convertPlayerEntity(player);
+				if (fields.containsKey("EntityPlayer.netServerHandler")) {
+					netServerHandlers.put(player, fields.get("EntityPlayer.netServerHandler").get(entityPlayer));
+				} else {
+					netServerHandlers.put(player, fields.get("EntityPlayer.playerConnection").get(entityPlayer));
+				}
+			} catch (Exception e) {
+				DisguiseCraft.logger.log(Level.SEVERE, "Could not obtain NSH of player: " + player.getName(), e);
+			}
 		}
 	}
 	
@@ -175,7 +171,11 @@ public class DynamicClassFunctions {
 	public static void sendPacket(Player player, Object packet) {
 		if (netServerHandlers.containsKey(player)) {
 			try {
-				methods.get("NetServerHandler.sendPacket(Packet)").invoke(netServerHandlers.get(player), packet);
+				if (classes.containsKey("NetServerHandler")) {
+					methods.get("NetServerHandler.sendPacket(Packet)").invoke(netServerHandlers.get(player), packet);
+				} else {
+					methods.get("PlayerConnection.sendPacket(Packet)").invoke(netServerHandlers.get(player), packet);
+				}
 			} catch (Exception e) {
 				DisguiseCraft.logger.log(Level.SEVERE, "Error sending packet to player: " + player.getName(), e);
 			}
@@ -244,7 +244,6 @@ public class DynamicClassFunctions {
 				
 				for (int i = value.superLocation; i > 0; i--) {
 					cls = cls.getSuperclass();
-					
 				}
 				
 				Field field = cls.getDeclaredField(value.field);
@@ -261,14 +260,14 @@ public class DynamicClassFunctions {
 	public static String equipmentChangePacketName = "Packet5EntityEquipment";
 	public static Object constructEquipmentChangePacket(int entityID, short slot, ItemStack item) {
 		try {
-			Constructor<?> cotr = classes.get(equipmentChangePacketName).getConstructor(int.class, int.class, classes.get("ItemStack"));
+			Constructor<?> ctor = classes.get(equipmentChangePacketName).getConstructor(int.class, int.class, classes.get("ItemStack"));
 			
 			Object itemStack = null;
 			if (item != null) {
 				itemStack = convertItemStack(item);
 			}
 			
-			return cotr.newInstance(entityID, slot, itemStack);
+			return ctor.newInstance(entityID, slot, itemStack);
 		} catch (Exception e) {
 			DisguiseCraft.logger.log(Level.SEVERE, "Error constructing a " + equipmentChangePacketName, e);
 			return null;
@@ -278,8 +277,8 @@ public class DynamicClassFunctions {
 	public static String entityMetadataPacketName = "Packet40EntityMetadata";
 	public static Object constructMetadataPacket(int entityID, Object dataWatcher) {
 		try {
-			Constructor<?> cotr = classes.get(entityMetadataPacketName).getConstructor(int.class, classes.get("DataWatcher"), boolean.class);
-			return cotr.newInstance(entityID, dataWatcher, true);
+			Constructor<?> ctor = classes.get(entityMetadataPacketName).getConstructor(int.class, classes.get("DataWatcher"), boolean.class);
+			return ctor.newInstance(entityID, dataWatcher, true);
 		} catch (Exception e) {
 			DisguiseCraft.logger.log(Level.SEVERE, "Error constructing a " + equipmentChangePacketName, e);
 			return null;
