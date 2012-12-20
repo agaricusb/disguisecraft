@@ -204,8 +204,8 @@ public class Disguise {
 	public void initializeData() {
 		if (!type.isObject()) {
 			metadata = type.newMetadata();
-			safeAddData(0, (Object) (byte) 0, false); // everything is casted to Object because of method signature
-			safeAddData(12, (Object) 0, false);
+			safeAddData(0, (byte) 0, false); // everything is casted to Object because of method signature
+			safeAddData(12, 0, false);
 		}
 		
 		// Bat fix
@@ -256,8 +256,6 @@ public class Disguise {
 				} else {
 					mWatch(12, -23999);
 				}
-			} else {
-				mWatch(12, 0);
 			}
 			
 			if (data.contains("black")) {

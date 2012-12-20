@@ -744,12 +744,6 @@ public class DCCommandListener implements CommandExecutor, TabCompleter {
 					if (type == null) {
 						sender.sendMessage(ChatColor.RED + "That mob type was not recognized.");
 					} else {
-						// Temporary patch
-						if (type == DisguiseType.Zombie || type == DisguiseType.PigZombie) {
-							sender.sendMessage(ChatColor.RED + "As of 1.4.2, setting a Zombie or PigZombie disguise to burning will crash clients. Therefore, this is temporarily blocked.");
-							return true;
-						}
-						
 						if (isConsole || (player.hasPermission("disguisecraft.burning") && player.hasPermission("disguisecraft.mob." + type.name().toLowerCase()))) {
 							if (plugin.disguiseDB.containsKey(player.getName())) {
 								Disguise disguise = plugin.disguiseDB.get(player.getName()).clone();
@@ -782,13 +776,6 @@ public class DCCommandListener implements CommandExecutor, TabCompleter {
 				} else { // Current mob
 					if (plugin.disguiseDB.containsKey(player.getName())) {
 						Disguise disguise = plugin.disguiseDB.get(player.getName()).clone();
-						
-						// Temporary patch
-						if (disguise.type == DisguiseType.Zombie || disguise.type == DisguiseType.PigZombie) {
-							sender.sendMessage(ChatColor.RED + "As of 1.4.2, setting a Zombie or PigZombie disguise to burning will crash clients. Therefore, this is temporarily blocked.");
-							return true;
-						}
-						
 						if (disguise.data != null && disguise.data.contains("burning")) {
 							sender.sendMessage(ChatColor.RED + "Already burning.");
 						} else {
