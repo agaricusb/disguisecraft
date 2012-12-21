@@ -47,17 +47,7 @@ public class DynamicClassFunctions {
 			
 			// net.minecraft.server
 			classes.put("EntityPlayer", Class.forName(nmsPackage + ".EntityPlayer"));
-			try {
-				classes.put("NetServerHandler", Class.forName(nmsPackage + ".NetServerHandler"));
-			} catch (Exception e) {
-			}
-			try {
-				classes.put("PlayerConnection", Class.forName(nmsPackage + ".PlayerConnection"));
-			} catch (Exception e) {
-				if (!classes.containsKey("NetServerHandler")) {
-					throw e;
-				}
-			}
+			classes.put("PlayerConnection", Class.forName(nmsPackage + ".PlayerConnection"));
 			classes.put("Packet", Class.forName(nmsPackage + ".Packet"));
 			classes.put("MathHelper", Class.forName(nmsPackage + ".MathHelper"));
 			classes.put("DataWatcher", Class.forName(nmsPackage + ".DataWatcher"));
@@ -95,24 +85,10 @@ public class DynamicClassFunctions {
 		try {
 			// org.bukkit.craftbukkit
 			methods.put("CraftPlayer.getHandle()", classes.get("CraftPlayer").getDeclaredMethod("getHandle"));
-			try {
-				methods.put("CraftItemStack.getHandle()", classes.get("CraftItemStack").getDeclaredMethod("getHandle"));
-			} catch (Exception e) {
-			}
-			try {
-				methods.put("CraftItemStack.asNMSCopy(ItemStack)", classes.get("CraftItemStack").getDeclaredMethod("asNMSCopy", ItemStack.class));
-			} catch (Exception e) {
-				if (!methods.containsKey("CraftItemStack.getHandle()")) {
-					throw e;
-				}
-			}
+			methods.put("CraftItemStack.asNMSCopy(ItemStack)", classes.get("CraftItemStack").getDeclaredMethod("asNMSCopy", ItemStack.class));
 			
 			// net.minecraft.server
-			if (classes.containsKey("NetServerHandler")) {
-				methods.put("NetServerHandler.sendPacket(Packet)", classes.get("NetServerHandler").getDeclaredMethod("sendPacket", classes.get("Packet")));
-			} else {
-				methods.put("PlayerConnection.sendPacket(Packet)", classes.get("PlayerConnection").getDeclaredMethod("sendPacket", classes.get("Packet")));
-			}
+			methods.put("PlayerConnection.sendPacket(Packet)", classes.get("PlayerConnection").getDeclaredMethod("sendPacket", classes.get("Packet")));
 			methods.put("MathHelper.floor(double)", classes.get("MathHelper").getDeclaredMethod("floor", double.class));
 			methods.put("WatchableObject.a()", classes.get("WatchableObject").getDeclaredMethod("a"));
 			methods.put("WatchableObject.b()", classes.get("WatchableObject").getDeclaredMethod("b"));
@@ -130,11 +106,7 @@ public class DynamicClassFunctions {
 	public static HashMap<String, Field> fields = new HashMap<String, Field>();
 	public static boolean setFields() {
 		try {
-			if (classes.containsKey("NetServerHandler")) {
-				fields.put("EntityPlayer.netServerHandler", classes.get("EntityPlayer").getDeclaredField("netServerHandler"));
-			} else {
-				fields.put("EntityPlayer.playerConnection", classes.get("EntityPlayer").getDeclaredField("playerConnection"));
-			}
+			fields.put("EntityPlayer.playerConnection", classes.get("EntityPlayer").getDeclaredField("playerConnection"));
 			fields.put("EntityPlayer.ping", classes.get("EntityPlayer").getDeclaredField("ping"));
 			return true;
 		} catch (Exception e) {
@@ -152,11 +124,7 @@ public class DynamicClassFunctions {
 		if (player.getClass() == classes.get("EntityPlayer")) {
 			try {
 				Object entityPlayer = convertPlayerEntity(player);
-				if (fields.containsKey("EntityPlayer.netServerHandler")) {
-					netServerHandlers.put(player, fields.get("EntityPlayer.netServerHandler").get(entityPlayer));
-				} else {
-					netServerHandlers.put(player, fields.get("EntityPlayer.playerConnection").get(entityPlayer));
-				}
+				netServerHandlers.put(player, fields.get("EntityPlayer.playerConnection").get(entityPlayer));
 			} catch (Exception e) {
 				DisguiseCraft.logger.log(Level.SEVERE, "Could not obtain NSH of player: " + player.getName(), e);
 			}
@@ -171,11 +139,7 @@ public class DynamicClassFunctions {
 	public static void sendPacket(Player player, Object packet) {
 		if (netServerHandlers.containsKey(player)) {
 			try {
-				if (classes.containsKey("NetServerHandler")) {
-					methods.get("NetServerHandler.sendPacket(Packet)").invoke(netServerHandlers.get(player), packet);
-				} else {
-					methods.get("PlayerConnection.sendPacket(Packet)").invoke(netServerHandlers.get(player), packet);
-				}
+				methods.get("PlayerConnection.sendPacket(Packet)").invoke(netServerHandlers.get(player), packet);
 			} catch (Exception e) {
 				DisguiseCraft.logger.log(Level.SEVERE, "Error sending packet to player: " + player.getName(), e);
 			}
@@ -205,11 +169,7 @@ public class DynamicClassFunctions {
 	// Convert ItemStack
 	public static Object convertItemStack(ItemStack item) {
 		try {
-			if (methods.containsKey("CraftItemStack.getHandle()")) {
-				return methods.get("CraftItemStack.getHandle()").invoke(item);
-			} else {
-				return methods.get("CraftItemStack.asNMSCopy(ItemStack)").invoke(null, item);
-			}
+			return methods.get("CraftItemStack.asNMSCopy(ItemStack)").invoke(null, item);
 		} catch (Exception e) {
 			DisguiseCraft.logger.log(Level.SEVERE, "Could not convert an ItemStack", e);
 			return null;

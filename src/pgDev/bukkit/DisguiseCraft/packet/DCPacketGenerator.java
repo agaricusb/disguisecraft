@@ -117,6 +117,7 @@ public class DCPacketGenerator {
     	}
     	
     	int[] locVars = getLocationVariables(loc);
+    	byte[] yp = getYawPitch(loc);
 		
 		values.add(new PacketField("a", d.entityID));
 		values.add(new PacketField("b", locVars[0]));
@@ -125,8 +126,10 @@ public class DCPacketGenerator {
 		values.add(new PacketField("e", 0));
 		values.add(new PacketField("f", 0));
 		values.add(new PacketField("g", 0));
-		values.add(new PacketField("h", d.type.id));
-		values.add(new PacketField("i", data));
+		values.add(new PacketField("h", yp[1]));
+		values.add(new PacketField("i", yp[0]));
+		values.add(new PacketField("j", d.type.id));
+		values.add(new PacketField("k", data));
 		
 		return DynamicClassFunctions.constructPacket("Packet23VehicleSpawn", values);
 	}

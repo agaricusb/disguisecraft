@@ -189,7 +189,7 @@ public class Disguise {
 		try {
 			DynamicClassFunctions.methods.get("DataWatcher.a(int, Object)").invoke(metadata, index, value);
 		} catch (Exception e) {
-			DisguiseCraft.logger.log(Level.SEVERE, "Could not add metadata to DataWatcher for a " + type.getClass() + " disguise", e);
+			DisguiseCraft.logger.log(Level.SEVERE, "Could not add metadata to DataWatcher for a " + type.name() + " disguise", e);
 		}
 	}
 	
@@ -197,7 +197,7 @@ public class Disguise {
 		try {
 			DynamicClassFunctions.methods.get("DataWatcher.watch(int, Object)").invoke(metadata, index, value);
 		} catch (Exception e) {
-			DisguiseCraft.logger.log(Level.SEVERE, "Could not edit metadata in DataWatcher for a " + type.getClass() + " disguise", e);
+			DisguiseCraft.logger.log(Level.SEVERE, "Could not edit metadata in DataWatcher for a " + type.name() + " disguise", e);
 		}
 	}
 	

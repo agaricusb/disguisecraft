@@ -4,6 +4,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Map;
 import java.util.logging.Level;
 
 import org.bukkit.entity.Animals;
@@ -66,7 +67,9 @@ public enum DisguiseType {
 	 */
 	public static LinkedList<DisguiseType> missingDisguises = new LinkedList<DisguiseType>();
 	protected static HashMap<Byte, Object> modelData = new HashMap<Byte, Object>();
+	
 	public static Field mapField;
+	public static Field boolField;
 	
 	public static void getDataWatchers() {
 		// Get model datawatchers
@@ -93,14 +96,29 @@ public enum DisguiseType {
 			DisguiseCraft.logger.log(Level.SEVERE, "Could not access datawatchers!");
 		}
     	
-    	// Set map field
-    	try {
-			mapField = DynamicClassFunctions.classes.get("DataWatcher").getDeclaredField("b");
-			mapField.setAccessible(true);
-		} catch (NoSuchFieldException e) {
-			DisguiseCraft.logger.log(Level.SEVERE, "Could not find datawatcher map field: b");
-		} catch (SecurityException e) {
-			DisguiseCraft.logger.log(Level.SEVERE, "Could not access datawatcher map field: b");
+    	// Store important fields
+    	int searchingFor = 0; // 0 = Map, 1 = boolean
+		for (Field f : DynamicClassFunctions.classes.get("DataWatcher").getDeclaredFields()) {
+			f.setAccessible(true);
+			if (searchingFor == 0) {
+				if (f.getType() == Map.class) {
+					try {
+						mapField = f;
+					} catch (Exception e) {
+						DisguiseCraft.logger.log(Level.SEVERE, "Could not find the DataWatcher Map");
+					}
+					searchingFor++;
+				}
+			} else if (searchingFor == 1) {
+				if (f.getType() == boolean.class) {
+					try {
+						boolField = f;
+					} catch (Exception e) {
+						DisguiseCraft.logger.log(Level.SEVERE, "Could not find the DataWatcher boolean!");
+					}
+					searchingFor++;
+				}
+			}
 		}
 	}
 	
@@ -213,28 +231,24 @@ public enum DisguiseType {
 				return null;
 			}
 			
-			int i = 0;
-			for (Field f : model.getClass().getDeclaredFields()) {
-				f.setAccessible(true);
-				if (i == 1) {
-					try {
-						HashMap<Integer, Object> modelMap = ((HashMap<Integer, Object>) f.get(model));
-						HashMap<Integer, Object> newMap = ((HashMap<Integer, Object>) f.get(w));
-						for (Integer index : modelMap.keySet()) {
-							newMap.put(index, copyWatchable(modelMap.get(index)));
-						}
-					} catch (Exception e) {
-						DisguiseCraft.logger.log(Level.SEVERE, "Could not clone hashmap" + i + " in a " + this.name() + "'s model datawatcher!");
-					}
-				} else if (i == 2) {
-					try {
-						f.setBoolean(w, f.getBoolean(model));
-					} catch (Exception e) {
-						DisguiseCraft.logger.log(Level.SEVERE, "Could not clone boolean" + i + " in a " + this.name() + "'s model datawatcher!");
-					}
+			// Clone Map
+			try {
+				HashMap<Integer, Object> modelMap = ((HashMap<Integer, Object>) mapField.get(model));
+				HashMap<Integer, Object> newMap = ((HashMap<Integer, Object>) mapField.get(w));
+				for (Integer index : modelMap.keySet()) {
+					newMap.put(index, copyWatchable(modelMap.get(index)));
 				}
-				i++;
+			} catch (Exception e) {
+				DisguiseCraft.logger.log(Level.SEVERE, "Could not clone map in a " + this.name() + "'s model datawatcher!");
 			}
+			
+			// Clone boolean
+			try {
+				boolField.setBoolean(w, boolField.getBoolean(model));
+			} catch (Exception e) {
+				DisguiseCraft.logger.log(Level.SEVERE, "Could not clone boolean in a " + this.name() + "'s model datawatcher!");
+			}
+			
 			return w;
 		} else {
 			try {
