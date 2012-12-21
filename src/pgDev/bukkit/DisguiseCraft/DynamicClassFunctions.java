@@ -121,13 +121,13 @@ public class DynamicClassFunctions {
 	
 	
 	public static void addNSH(Player player) {
-		if (player.getClass() == classes.get("EntityPlayer")) {
-			try {
-				Object entityPlayer = convertPlayerEntity(player);
+		try {
+			Object entityPlayer = convertPlayerEntity(player);
+			if (entityPlayer.getClass() == classes.get("EntityPlayer")) {
 				netServerHandlers.put(player, fields.get("EntityPlayer.playerConnection").get(entityPlayer));
-			} catch (Exception e) {
-				DisguiseCraft.logger.log(Level.SEVERE, "Could not obtain NSH of player: " + player.getName(), e);
 			}
+		} catch (Exception e) {
+			DisguiseCraft.logger.log(Level.SEVERE, "Could not obtain NSH of player: " + player.getName(), e);
 		}
 	}
 	
