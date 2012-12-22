@@ -34,7 +34,12 @@ public class DCPacketGenerator {
 	
 	public LinkedList<Object> getArmorPackets(Player player) {
 		LinkedList<Object> packets = new LinkedList<Object>();
-		ItemStack[] armor = player.getInventory().getArmorContents();
+		ItemStack[] armor;
+		if (player == null) {
+			armor = new  ItemStack[] {new ItemStack(0, 0), new ItemStack(0, 0), new ItemStack(0, 0), new ItemStack(0, 0)};
+		} else {
+			armor = player.getInventory().getArmorContents();
+		}
 		for (byte i=0; i < armor.length; i++) {
 			packets.add(getEquipmentChangePacket((short) (i + 1), armor[i]));
 		}

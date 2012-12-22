@@ -21,7 +21,7 @@ import pgDev.bukkit.DisguiseCraft.api.*;
 public class DCCommandListener implements CommandExecutor, TabCompleter {
 	final DisguiseCraft plugin;
 	
-	public static String[] subCommands = new String[] {"subtypes", "send", "nopickup", "blocklock", "drop"};
+	public static String[] subCommands = new String[] {"subtypes", "send", "nopickup", "blocklock", "noarmor", "drop"};
 	
 	public DCCommandListener(final DisguiseCraft plugin) {
 		this.plugin = plugin;
@@ -245,6 +245,7 @@ public class DCCommandListener implements CommandExecutor, TabCompleter {
 							sender.sendMessage(ChatColor.GOLD + "Block lock disabled");
 						} else {
 							disguise.addSingleData("blocklock");
+							plugin.sendMovement(player, null, player.getVelocity(), player.getLocation());
 							sender.sendMessage(ChatColor.GOLD + "Block lock enabled");
 						}
 					} else {
@@ -252,6 +253,23 @@ public class DCCommandListener implements CommandExecutor, TabCompleter {
 					}
 				} else {
 					player.sendMessage(ChatColor.RED + "You do not have permission to toggle blocklock");
+				}
+			} else if (args[0].equalsIgnoreCase("noarmor") || args[0].equalsIgnoreCase("na")) {
+				if (isConsole || player.hasPermission("disguisecraft.noarmor")) {
+					if (plugin.disguiseDB.containsKey(player.getName())) {
+						Disguise disguise = plugin.disguiseDB.get(player.getName());
+						if (disguise.data.remove("noarmor")) {
+							sender.sendMessage(ChatColor.GOLD + "No-armor disabled");
+						} else {
+							disguise.addSingleData("noarmor");
+							plugin.sendPacketsToWorld(player.getWorld(), disguise.packetGenerator.getArmorPackets(null));
+							sender.sendMessage(ChatColor.GOLD + "No-armor enabled");
+						}
+					} else {
+						sender.sendMessage(ChatColor.RED + "Must first be disguised.");
+					}
+				} else {
+					player.sendMessage(ChatColor.RED + "You do not have permission to toggle noarmor");
 				}
 			} else if (args[0].equalsIgnoreCase("baby")) {
 				if (args.length > 1) { // New disguise
@@ -1066,6 +1084,9 @@ public class DCCommandListener implements CommandExecutor, TabCompleter {
 					if (type == null) {
 						sender.sendMessage(ChatColor.RED + "That mob type was not recognized.");
 					} else {
+						if (type == DisguiseType.Villager) { // For convenience
+							type = DisguiseType.Zombie;
+						}
 						if (type == DisguiseType.Zombie || type == DisguiseType.PigZombie) {
 							if (isConsole || player.hasPermission("disguisecraft.mob." + type.name().toLowerCase() + ".infected")) {
 								if (plugin.disguiseDB.containsKey(player.getName())) {

@@ -37,7 +37,9 @@ public class DroppedDisguise extends Disguise {
 		LinkedList<Object> packets = new LinkedList<Object>();
 		packets.add(packetGenerator.getSpawnPacket(player));
 		packets.add(packetGenerator.getEquipmentChangePacket((short) 0, player.getItemInHand()));
-		packets.addAll(packetGenerator.getArmorPackets(player));
+		if (!data.contains("noarmor")) {
+			packets.addAll(packetGenerator.getArmorPackets(player));
+		}
 		return packets;
 	}
 }

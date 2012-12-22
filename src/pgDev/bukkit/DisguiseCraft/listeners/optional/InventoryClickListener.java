@@ -8,6 +8,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 
 import pgDev.bukkit.DisguiseCraft.DisguiseCraft;
+import pgDev.bukkit.DisguiseCraft.disguise.Disguise;
 import pgDev.bukkit.DisguiseCraft.listeners.ArmorUpdater;
 
 public class InventoryClickListener implements Listener {
@@ -24,7 +25,10 @@ public class InventoryClickListener implements Listener {
 			if (entity instanceof Player) {
 				Player player = (Player) entity;
 				if (plugin.disguiseDB.containsKey(player.getName())) {
-					plugin.getServer().getScheduler().runTask(plugin, new ArmorUpdater(plugin, player, plugin.disguiseDB.get(player.getName())));
+					Disguise disguise = plugin.disguiseDB.get(player.getName());
+					if (!disguise.data.contains("noarmor")) {
+						plugin.getServer().getScheduler().runTask(plugin, new ArmorUpdater(plugin, player, disguise));
+					}
 				}
 			}
 		}

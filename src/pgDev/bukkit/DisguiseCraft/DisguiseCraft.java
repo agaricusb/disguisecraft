@@ -419,11 +419,16 @@ public class DisguiseCraft extends JavaPlugin {
 			if (!pluginSettings.noTabHide) {
 				toSend.add(disguise.packetGenerator.getPlayerInfoPacket(disguised, true));
 			}
-			toSend.addAll(disguise.packetGenerator.getArmorPackets(disguised));
+			if (!disguise.data.contains("noarmor")) {
+				toSend.addAll(disguise.packetGenerator.getArmorPackets(disguised));
+			}
 		} else if (disguise.type == DisguiseType.Zombie || disguise.type == DisguiseType.PigZombie || disguise.type == DisguiseType.Skeleton) {
 			toSend.add(disguise.packetGenerator.getEquipmentChangePacket((short) 0, disguised.getItemInHand()));
-			toSend.addAll(disguise.packetGenerator.getArmorPackets(disguised));
+			if (!disguise.data.contains("noarmor")) {
+				toSend.addAll(disguise.packetGenerator.getArmorPackets(disguised));
+			}
 		}
+		
 		if (observer == null) {
 			disguiseToWorld(disguised.getWorld(), disguised, toSend);
 		} else {
