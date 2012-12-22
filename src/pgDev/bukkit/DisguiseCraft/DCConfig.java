@@ -53,7 +53,7 @@ public class DCConfig {
         // Grab values here.
         for (String key : optionals.keySet()) {
         	if (!getBoolean(key, true)) {
-        		optionals.put(key, null);
+        		optionals.remove(key);
         	}
         }
         disguisePVP = getBoolean("disguisePVP", true);
