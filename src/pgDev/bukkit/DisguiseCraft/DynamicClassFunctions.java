@@ -161,7 +161,7 @@ public class DynamicClassFunctions {
 		try {
 			return methods.get("CraftPlayer.getHandle()").invoke(player);
 		} catch (Exception e) {
-			DisguiseCraft.logger.log(Level.SEVERE, "Could not convert a Player-Entity", e);
+			DisguiseCraft.logger.log(Level.SEVERE, "Could not convert Player-Entity with name: " + player.getName(), e);
 			return null;
 		}
 	}
