@@ -568,15 +568,16 @@ public class DisguiseCraft extends JavaPlugin {
 			if (disguised != null && disguised != observer) {
 				if (disguised.getWorld() == observer.getWorld()) {
 					sendDisguise(disguised, observer);
+					
+					if (pluginSettings.noTabHide) {
+						//((CraftPlayer) observer).getHandle().netServerHandler.sendPacket(new Packet201PlayerInfo(disguisedName, true, ((CraftPlayer) disguised).getHandle().ping));
+						LinkedList<PacketField> values = new LinkedList<PacketField>();
+						values.add(new PacketField("a", disguisedName));
+						values.add(new PacketField("b", true));
+						values.add(new PacketField("c", DynamicClassFunctions.getPlayerPing(disguised)));
+						DynamicClassFunctions.sendPacket(observer, DynamicClassFunctions.constructPacket("Packet201PlayerInfo", values));
+					}
 				}
-			}
-			if (pluginSettings.noTabHide) {
-				//((CraftPlayer) observer).getHandle().netServerHandler.sendPacket(new Packet201PlayerInfo(disguisedName, true, ((CraftPlayer) disguised).getHandle().ping));
-				LinkedList<PacketField> values = new LinkedList<PacketField>();
-				values.add(new PacketField("a", disguisedName));
-				values.add(new PacketField("b", true));
-				values.add(new PacketField("c", DynamicClassFunctions.getPlayerPing(disguised)));
-				DynamicClassFunctions.sendPacket(observer, DynamicClassFunctions.constructPacket("Packet201PlayerInfo", values));
 			}
 		}
     }
