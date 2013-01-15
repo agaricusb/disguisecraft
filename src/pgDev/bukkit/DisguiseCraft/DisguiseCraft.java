@@ -171,15 +171,16 @@ public class DisguiseCraft extends JavaPlugin {
             }
             
             // Set up the protocol hook!
+            boolean plEnabled = setupProtocol();
             if (pluginSettings.disguisePVP) {
-            	if (!setupProtocol()) {
+            	if (plEnabled) {
+            		packetListener.setupAttackListener();
+            	} else {
             		logger.log(Level.WARNING, "You have \"disguisePVP\" enabled in the configuration, but do not have the ProtocolLib plugin installed! Players wearing disguises can not be attacked by melee!");
             	}
             }
-            
-            // Check for tab list no-hide
             if (pluginSettings.noTabHide) {
-            	if (protocolManager == null) {
+            	if (plEnabled) {
             		logger.log(Level.SEVERE, "You have \"noTabHide\" enabled in the configuration, but do not have the ProtocolLib plugin installed!");
             	} else {
             		packetListener.setupTabListListener();

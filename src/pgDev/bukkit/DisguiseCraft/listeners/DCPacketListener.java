@@ -23,10 +23,9 @@ public class DCPacketListener {
 	
 	public DCPacketListener(final DisguiseCraft plugin) {
 		this.plugin = plugin;
-		setupListeners();
 	}
 	
-	void setupListeners() {
+	public void setupAttackListener() {
 		pM.addPacketListener(new PacketAdapter(plugin,
 			ConnectionSide.CLIENT_SIDE, ListenerPriority.NORMAL, 0x07) {
 			    @Override
