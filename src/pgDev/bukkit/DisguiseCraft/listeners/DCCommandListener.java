@@ -41,7 +41,7 @@ public class DCCommandListener implements CommandExecutor, TabCompleter {
 			player = (Player) sender;
 		} else {
 			if (args.length == 0 || (player = plugin.getServer().getPlayer(args[0])) == null) {
-				sender.sendMessage("Because you are using the console, you must specify a player as your first argyment.");
+				sender.sendMessage("Because you are using the console, you must specify a player as your first argument.");
 				return true;
 			} else {
 				isConsole = true;
