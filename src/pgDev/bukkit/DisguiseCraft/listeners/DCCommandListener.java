@@ -1347,7 +1347,7 @@ public class DCCommandListener implements CommandExecutor, TabCompleter {
 								sender.sendMessage(ChatColor.GOLD + "You have undisguised " + toUndisguise.getName());
 								toUndisguise.sendMessage(ChatColor.GOLD + "You were undisguised by " + player.getName());
 							} else {
-								sender.sendMessage(ChatColor.RED + player.getName() + " is not disguised.");
+								sender.sendMessage(ChatColor.RED + toUndisguise.getName() + " is not disguised.");
 							}
 						}
 					}
