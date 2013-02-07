@@ -110,9 +110,9 @@ public class DCPacketGenerator {
     	if (d.type.isBlock()) {
     		loc.setY(loc.getY() + 0.5);
     		
-    		Byte blockID = d.getBlockID();
+    		Integer blockID = d.getBlockID();
     		if (blockID != null) {
-    			data = (int) blockID;
+    			data = blockID.intValue();
     			
     			Byte blockData = d.getBlockData();
     			if (blockData != null) {

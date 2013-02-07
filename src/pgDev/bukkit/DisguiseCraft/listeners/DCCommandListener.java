@@ -907,30 +907,34 @@ public class DCCommandListener implements CommandExecutor, TabCompleter {
 							sender.sendMessage(ChatColor.RED + "The block you specified could not be found");
 						} else {
 							if (type.isBlock()) {
-								if (plugin.disguiseDB.containsKey(player.getName())) {
-									Disguise disguise = plugin.disguiseDB.get(player.getName()).clone();
-									if (disguise.type == DisguiseType.Enderman) {
-										Byte currentHold = disguise.getBlockID();
-										if (currentHold != null) {
-											disguise.data.remove("blockID:" + currentHold);
-										}
-										disguise.addSingleData("blockID:" + type.getId());
-										
-										// Pass the event
-										PlayerDisguiseEvent ev = new PlayerDisguiseEvent(player, disguise);
-										plugin.getServer().getPluginManager().callEvent(ev);
-										if (ev.isCancelled()) return true;
-										
-										plugin.changeDisguise(player, disguise);
-										player.sendMessage(ChatColor.GOLD + "Your disguise is now holding: " + type.toString());
-										if (isConsole) {
-											sender.sendMessage(player.getName() + "'s disguise is now holding: " + type.toString());
+								if (type.getId() > 127) {
+									sender.sendMessage(ChatColor.RED + "Endermen cannot hold blocks with IDs over 127");
+								} else {
+									if (plugin.disguiseDB.containsKey(player.getName())) {
+										Disguise disguise = plugin.disguiseDB.get(player.getName()).clone();
+										if (disguise.type == DisguiseType.Enderman) {
+											Integer currentHold = disguise.getBlockID();
+											if (currentHold != null) {
+												disguise.data.remove("blockID:" + currentHold);
+											}
+											disguise.addSingleData("blockID:" + type.getId());
+											
+											// Pass the event
+											PlayerDisguiseEvent ev = new PlayerDisguiseEvent(player, disguise);
+											plugin.getServer().getPluginManager().callEvent(ev);
+											if (ev.isCancelled()) return true;
+											
+											plugin.changeDisguise(player, disguise);
+											player.sendMessage(ChatColor.GOLD + "Your disguise is now holding: " + type.toString());
+											if (isConsole) {
+												sender.sendMessage(player.getName() + "'s disguise is now holding: " + type.toString());
+											}
+										} else {
+											sender.sendMessage(ChatColor.RED + "Only Enderman disguises can hold blocks");
 										}
 									} else {
-										sender.sendMessage(ChatColor.RED + "Only Enderman disguises can hold blocks");
+										sender.sendMessage(ChatColor.RED + "Must first be disguised as an Enderman");
 									}
-								} else {
-									sender.sendMessage(ChatColor.RED + "Must first be disguised as an Enderman");
 								}
 							} else {
 								sender.sendMessage(ChatColor.RED + "Only blocks can be held");
@@ -948,7 +952,7 @@ public class DCCommandListener implements CommandExecutor, TabCompleter {
 					if (isConsole || (disguise.type == DisguiseType.Enderman && player.hasPermission("disguisecraft.mob.enderman.hold.metadata"))
 							|| (disguise.type == DisguiseType.FallingBlock && player.hasPermission("disguisecraft.object.block.fallingblock.material.metadata"))) {
 						if (args.length > 1) {
-							Byte block = disguise.getBlockID();
+							Integer block = disguise.getBlockID();
 							if (block == null) {
 								sender.sendMessage(ChatColor.RED + "No block is being held");
 							} else {

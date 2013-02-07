@@ -354,7 +354,7 @@ public class Disguise {
 				mWatch(16, (byte) 1);
 			}
 			
-			Byte held = getBlockID();
+			Integer held = getBlockID();
 			if (held != null && type == DisguiseType.Enderman) {
 				mWatch(16, held.byteValue());
 				
@@ -471,15 +471,15 @@ public class Disguise {
 	 * Gets the block ID relevant to this disguise (stored within metadata)
 	 * @return The block ID (null if none found)
 	 */
-	public Byte getBlockID() {
+	public Integer getBlockID() {
 		if (!data.isEmpty()) {
 			for (String one : data) {
 				if (one.startsWith("blockID:")) {
 					String[] parts = one.split(":");
 					try {
-						return Byte.valueOf(parts[1]);
+						return Integer.valueOf(parts[1]);
 					} catch (NumberFormatException e) {
-						DisguiseCraft.logger.log(Level.WARNING, "Could not parse the byte of a disguise's block!");
+						DisguiseCraft.logger.log(Level.WARNING, "Could not parse the integer of a disguise's block!");
 					}
 				}
 			}
