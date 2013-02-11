@@ -181,9 +181,9 @@ public class DisguiseCraft extends JavaPlugin {
             }
             if (pluginSettings.noTabHide) {
             	if (plEnabled) {
-            		logger.log(Level.SEVERE, "You have \"noTabHide\" enabled in the configuration, but do not have the ProtocolLib plugin installed!");
-            	} else {
             		packetListener.setupTabListListener();
+            	} else {
+            		logger.log(Level.SEVERE, "You have \"noTabHide\" enabled in the configuration, but do not have the ProtocolLib plugin installed!");
             	}
             }
             
