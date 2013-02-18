@@ -149,6 +149,14 @@ public enum DisguiseType {
 	}
 	
 	/**
+	 * Check if this is a humanoid.
+	 * @return true if the type is of a humanoid (player, skeleton, zombie, pigzombie), false otherwise
+	 */
+	public boolean isHumanoid() {
+		return isPlayer() || this == Skeleton || this == Zombie || this == PigZombie;
+	}
+	
+	/**
 	 * Check if this is a player.
 	 * @return true if the type is of a player, false otherwise
 	 */

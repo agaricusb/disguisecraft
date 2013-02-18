@@ -342,6 +342,21 @@ public class Disguise {
 				}
 			}
 			
+			// Wolf index 16 flags
+			if (type == DisguiseType.Wolf) {
+				byte flags = 0;
+				if (data.contains("sitting")) {
+					firstIndex = (byte) (flags | 0x01);
+				}
+				if (data.contains("aggressive")) {
+					firstIndex = (byte) (flags | 0x02);
+				}
+				if (data.contains("tamed")) {
+					firstIndex = (byte) (flags | 0x04);
+				}
+				mWatch(0, firstIndex);
+			}
+			
 			if (data.contains("tabby")) {
 				mWatch(18, (byte) 2);
 			} else if (data.contains("tuxedo")) {

@@ -11,6 +11,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.permissions.Permission;
 
@@ -40,7 +41,9 @@ public class DCCommandListener implements CommandExecutor, TabCompleter {
 		if (sender instanceof Player) {
 			player = (Player) sender;
 		} else {
-			if (args.length == 0 || (player = plugin.getServer().getPlayer(args[0])) == null) {
+			if (label.toLowerCase().startsWith("u") && (args.length > 0 && args[0].equals("*"))) {
+				undisguiseAllCommand(sender);
+			} else if (args.length == 0 || (player = plugin.getServer().getPlayer(args[0])) == null) {
 				sender.sendMessage("Because you are using the console, you must specify a player as your first argument.");
 				return true;
 			} else {
@@ -1308,33 +1311,29 @@ public class DCCommandListener implements CommandExecutor, TabCompleter {
 			if (!isConsole && args.length > 0) {
 				if (player.hasPermission("disguisecraft.other.undisguise")) {
 					if (args[0].equals("*")) {
-						LinkedList<String> undisguisedPlayers = new LinkedList<String>();
-						for (Player currentPlayer : plugin.getServer().getOnlinePlayers()) {
-							if (currentPlayer == player) continue;
-							if (plugin.disguiseDB.containsKey(currentPlayer.getName())) {
-								// Pass the event
-								PlayerUndisguiseEvent ev = new PlayerUndisguiseEvent(currentPlayer);
-								plugin.getServer().getPluginManager().callEvent(ev);
-								if (ev.isCancelled()) continue;
+						undisguiseAllCommand(sender);
+					} else if (args[0].toLowerCase().equalsIgnoreCase("r") || args[0].toLowerCase().equalsIgnoreCase("radius")) {
+						if (args.length > 1) {
+							try {
+								int r = Integer.valueOf(args[1]);
+								List<Entity> ents = player.getNearbyEntities(r, r, r);
 								
-								plugin.unDisguisePlayer(currentPlayer);
-								undisguisedPlayers.add(currentPlayer.getName());
-								currentPlayer.sendMessage(ChatColor.GOLD + "You were undisguised by " + ChatColor.DARK_GREEN + player.getName());
-							}
-						}
-						
-						if (undisguisedPlayers.size() == 0) {
-							sender.sendMessage(ChatColor.RED + "There was no one to undisguise.");
-						} else {
-							String playerNames = "";
-							for (String name : undisguisedPlayers) {
-								if (playerNames.equals("")) {
-									playerNames = ChatColor.DARK_GREEN + name;
-								} else {
-									playerNames = playerNames + ChatColor.GOLD + ", " + ChatColor.DARK_GREEN + name;
+								LinkedList<String> undisguisedPlayers = new LinkedList<String>();
+								for (Entity ent : ents) {
+									if (ent instanceof Player) {
+										Player p = (Player) ent;
+										plugin.unDisguisePlayer(p);
+										undisguisedPlayers.add(p.getName());
+										p.sendMessage(ChatColor.GOLD + "You were undisguised by " + ChatColor.DARK_GREEN + sender.getName());
+									}
 								}
+								
+								sayUndisguised(sender, undisguisedPlayers);
+							} catch (NumberFormatException e) {
+								sender.sendMessage(ChatColor.RED + "You must input a proper integer");
 							}
-							sender.sendMessage(ChatColor.GOLD + "You have undisguised: " + ChatColor.DARK_GREEN + playerNames);
+						} else {
+							sender.sendMessage(ChatColor.GREEN + "Usage: /" + label + " " + args[0] + " <radius>");
 						}
 					} else {
 						Player toUndisguise;
@@ -1380,6 +1379,40 @@ public class DCCommandListener implements CommandExecutor, TabCompleter {
 			}
 		}
 		return true;
+	}
+	
+	public void undisguiseAllCommand(CommandSender sender) {
+		LinkedList<String> undisguisedPlayers = new LinkedList<String>();
+		for (Player currentPlayer : plugin.getServer().getOnlinePlayers()) {
+			if (currentPlayer == sender) continue;
+			if (plugin.disguiseDB.containsKey(currentPlayer.getName())) {
+				// Pass the event
+				PlayerUndisguiseEvent ev = new PlayerUndisguiseEvent(currentPlayer);
+				plugin.getServer().getPluginManager().callEvent(ev);
+				if (ev.isCancelled()) continue;
+				
+				plugin.unDisguisePlayer(currentPlayer);
+				undisguisedPlayers.add(currentPlayer.getName());
+				currentPlayer.sendMessage(ChatColor.GOLD + "You were undisguised by " + ChatColor.DARK_GREEN + sender.getName());
+			}
+		}
+		sayUndisguised(sender, undisguisedPlayers);
+	}
+	
+	public void sayUndisguised(CommandSender sender, List<String> undisguised) {
+		if (undisguised.size() == 0) {
+			sender.sendMessage(ChatColor.RED + "There was no one to undisguise.");
+		} else {
+			String playerNames = "";
+			for (String name : undisguised) {
+				if (playerNames.equals("")) {
+					playerNames = ChatColor.DARK_GREEN + name;
+				} else {
+					playerNames = playerNames + ChatColor.GOLD + ", " + ChatColor.DARK_GREEN + name;
+				}
+			}
+			sender.sendMessage(ChatColor.GOLD + "You have undisguised: " + ChatColor.DARK_GREEN + playerNames);
+		}
 	}
 	
     @Override
