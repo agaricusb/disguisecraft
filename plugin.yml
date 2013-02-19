@@ -130,6 +130,7 @@ permissions:
             disguisecraft.mob.wolf.baby: true
             disguisecraft.mob.wolf.tamed: true
             disguisecraft.mob.wolf.aggressive: true
+            disguisecraft.mob.wolf.collar.*: true
             disguisecraft.mob.zombie: true
             disguisecraft.mob.zombie.baby: true
             disguisecraft.mob.zombie.infected: true
@@ -427,12 +428,81 @@ permissions:
     disguisecraft.mob.wolf.aggressive:
         default: op
         description: Can disguise as a agressive wolf.
+    disguisecraft.mob.wolf.collar.*:
+        default: op
+        description: Can disguise as a wolf with any color collar.
+        children:
+            disguisecraft.mob.wolf.collar.black: true
+            disguisecraft.mob.wolf.collar.blue: true
+            disguisecraft.mob.wolf.collar.brown: true
+            disguisecraft.mob.wolf.collar.cyan: true
+            disguisecraft.mob.wolf.collar.gray: true
+            disguisecraft.mob.wolf.collar.green: true
+            disguisecraft.mob.wolf.collar.lightblue: true
+            disguisecraft.mob.wolf.collar.lime: true
+            disguisecraft.mob.wolf.collar.magenta: true
+            disguisecraft.mob.wolf.collar.orange: true
+            disguisecraft.mob.wolf.collar.pink: true
+            disguisecraft.mob.wolf.collar.purple: true
+            disguisecraft.mob.wolf.collar.red: true
+            disguisecraft.mob.wolf.collar.silver: true
+            disguisecraft.mob.wolf.collar.white: true
+            disguisecraft.mob.wolf.collar.yellow: true
+            disguisecraft.mob.wolf.collar.sheared: true
+    disguisecraft.mob.wolf.collar.black:
+        default: op
+        description: Can disguise as a wolf with a black collar.
+    disguisecraft.mob.wolf.collar.blue:
+        default: op
+        description: Can disguise as a wolf with a blue collar.
+    disguisecraft.mob.wolf.collar.brown:
+        default: op
+        description: Can disguise as a wolf with a brown collar.
+    disguisecraft.mob.wolf.collar.cyan:
+        default: op
+        description: Can disguise as a wolf with a cyan collar.
+    disguisecraft.mob.wolf.collar.gray:
+        default: op
+        description: Can disguise as a wolf with a grey collar.
+    disguisecraft.mob.wolf.collar.green:
+        default: op
+        description: Can disguise as a wolf with a green collar.
+    disguisecraft.mob.wolf.collar.lightblue:
+        default: op
+        description: Can disguise as a wolf with a light blue collar.
+    disguisecraft.mob.wolf.collar.lime:
+        default: op
+        description: Can disguise as a wolf with a lime collar.
+    disguisecraft.mob.wolf.collar.magenta:
+        default: op
+        description: Can disguise as a wolf with a magenta collar.
+    disguisecraft.mob.wolf.collar.orange:
+        default: op
+        description: Can disguise as a wolf with an orange collar.
+    disguisecraft.mob.wolf.collar.pink:
+        default: op
+        description: Can disguise as a wolf with a pink collar.
+    disguisecraft.mob.wolf.collar.purple:
+        default: op
+        description: Can disguise as a wolf with a purple collar.
+    disguisecraft.mob.wolf.collar.red:
+        default: op
+        description: Can disguise as a wolf with a red collar.
+    disguisecraft.mob.wolf.collar.silver:
+        default: op
+        description: Can disguise as a wolf with a silver collar.
+    disguisecraft.mob.wolf.collar.white:
+        default: op
+        description: Can disguise as a wolf with a white collar.
+    disguisecraft.mob.wolf.collar.yellow:
+        default: op
+        description: Can disguise as a wolf with a yellow collar.
     disguisecraft.mob.zombie:
         default: op
         description: Can disguise as a zombie.
     disguisecraft.mob.zombie.baby:
         default: op
-        description: Can disguise as a baby zombie.\
+        description: Can disguise as a baby zombie.
     disguisecraft.mob.zombie.infected:
         default: op
         description: Can disguise as an infected zombie.

@@ -107,6 +107,13 @@ public class Disguise {
 				data.add("blockID:19"); // In honor of my first plugin
 			}
 		}
+		
+		// Check for woldf color
+		if (type == DisguiseType.Wolf) {
+			if (getColor() != null && !data.contains("tamed")) {
+				data.add("tamed");
+			}
+		}
 	}
 	
 	/**
@@ -258,40 +265,44 @@ public class Disguise {
 				}
 			}
 			
+			int ci = 16;
+			if (type == DisguiseType.Wolf) {
+				ci = 20;
+			}
 			if (data.contains("black")) {
-				mWatch(16, (byte) 15);
+				mWatch(ci, (byte) 15);
 			} else if (data.contains("blue")) {
-				mWatch(16, (byte) 11);
+				mWatch(ci, (byte) 11);
 			} else if (data.contains("brown")) {
-				mWatch(16, (byte) 12);
+				mWatch(ci, (byte) 12);
 			} else if (data.contains("cyan")) {
-				mWatch(16, (byte) 9);
+				mWatch(ci, (byte) 9);
 			} else if (data.contains("gray")) {
-				mWatch(16, (byte) 7);
+				mWatch(ci, (byte) 7);
 			} else if (data.contains("green")) {
-				mWatch(16, (byte) 13);
+				mWatch(ci, (byte) 13);
 			} else if (data.contains("lightblue")) {
-				mWatch(16, (byte) 3);
+				mWatch(ci, (byte) 3);
 			} else if (data.contains("lime")) {
-				mWatch(16, (byte) 5);
+				mWatch(ci, (byte) 5);
 			} else if (data.contains("magenta")) {
-				mWatch(16, (byte) 2);
+				mWatch(ci, (byte) 2);
 			} else if (data.contains("orange")) {
-				mWatch(16, (byte) 1);
+				mWatch(ci, (byte) 1);
 			} else if (data.contains("pink")) {
-				mWatch(16, (byte) 6);
+				mWatch(ci, (byte) 6);
 			} else if (data.contains("purple")) {
-				mWatch(16, (byte) 10);
+				mWatch(ci, (byte) 10);
 			} else if (data.contains("red")) {
-				mWatch(16, (byte) 14);
+				mWatch(ci, (byte) 14);
 			} else if (data.contains("silver")) {
-				mWatch(16, (byte) 8);
+				mWatch(ci, (byte) 8);
 			} else if (data.contains("white")) {
-				mWatch(16, (byte) 0);
+				mWatch(ci, (byte) 0);
 			} else if (data.contains("yellow")) {
-				mWatch(16, (byte) 4);
+				mWatch(ci, (byte) 4);
 			} else if (data.contains("sheared")) {
-				mWatch(16, (byte) 16);
+				mWatch(ci, (byte) 16);
 			}
 			
 			if (data.contains("charged")) {
@@ -316,29 +327,11 @@ public class Disguise {
 				DisguiseCraft.logger.log(Level.WARNING, "Bad cube size values in configuration!", e);
 			}
 			
-			if (data.contains("sitting")) {
-				try {
-					mAdd(16, (byte) 1);
-				} catch (IllegalArgumentException e) {
-					mWatch(16, (byte) 1);
-				}
-			} else if (data.contains("aggressive")) {
-				if (type == DisguiseType.Wolf) {
-					try {
-						mAdd(16, (byte) 2);
-					} catch (IllegalArgumentException e) {
-						mWatch(16, (byte) 2);
-					}
-				} else if (type == DisguiseType.Ghast) {
+			if (data.contains("aggressive")) {
+				if (type == DisguiseType.Ghast) {
 					mWatch(16, (byte) 1);
 				} else if (type == DisguiseType.Enderman) {
 					mWatch(17, (byte) 1);
-				}
-			} else if (data.contains("tamed")) {
-				try {
-					mAdd(16, (byte) 4);
-				} catch (IllegalArgumentException e) {
-					mWatch(16, (byte) 4);
 				}
 			}
 			
@@ -354,7 +347,7 @@ public class Disguise {
 				if (data.contains("tamed")) {
 					firstIndex = (byte) (flags | 0x04);
 				}
-				mWatch(0, firstIndex);
+				mWatch(16, firstIndex);
 			}
 			
 			if (data.contains("tabby")) {
@@ -541,7 +534,7 @@ public class Disguise {
 			}
 			if (!data.isEmpty()) {
 				for (String dat : data) { // Check Subtypes
-					if (dat.equalsIgnoreCase("crouched") || dat.equalsIgnoreCase("riding") || dat.equalsIgnoreCase("sprinting") || dat.equalsIgnoreCase("nopickup")) { // Ignore some statuses
+					if (dat.equalsIgnoreCase("crouched") || dat.equalsIgnoreCase("riding") || dat.equalsIgnoreCase("sprinting") || dat.equalsIgnoreCase("nopickup") || dat.equalsIgnoreCase("blocklock")) { // Ignore some statuses
 						continue;
 					}
 					if (dat.startsWith("holding")) { // Check Holding Block
@@ -557,7 +550,11 @@ public class Disguise {
 						continue;
 					}
 					if (getColor() != null && dat.equals(getColor())) { // Check Color
-						if (!player.hasPermission("disguisecraft.mob." + type.name().toLowerCase() + ".color." + dat)) {
+						String c = ".color.";
+						if (type == DisguiseType.Wolf) {
+							c = ".collar.";
+						}
+						if (!player.hasPermission("disguisecraft.mob." + type.name().toLowerCase() + c + dat)) {
 							return false;
 						}
 						continue;
@@ -568,7 +565,7 @@ public class Disguise {
 						}
 						continue;
 					}
-					if (dat.equalsIgnoreCase("librarian") || dat.equalsIgnoreCase("priest") || dat.equalsIgnoreCase("blacksmith") || dat.equalsIgnoreCase("butcher")) { // Check Occupation
+					if (dat.equalsIgnoreCase("librarian") || dat.equalsIgnoreCase("priest") || dat.equalsIgnoreCase("blacksmith") || dat.equalsIgnoreCase("butcher") || dat.equalsIgnoreCase("generic")) { // Check Occupation
 						if (!player.hasPermission("disguisecraft.mob." + type.name().toLowerCase() + ".occupation." + dat)) {
 							return false;
 						}
@@ -577,6 +574,16 @@ public class Disguise {
 					if (!player.hasPermission("disguisecraft.mob." + type.name().toLowerCase() + "." + dat)) {
 						return false;
 					}
+				}
+			}
+		} else if (type.isObject()) {
+			if (type.isBlock()) {
+				if (!player.hasPermission("disguisecraft.object.block." + type.name().toLowerCase())) {
+					return false;
+				}
+			} else if (type.isVehicle()) {
+				if (!player.hasPermission("disguisecraft.object.vehicle." + type.name().toLowerCase())) {
+					return false;
 				}
 			}
 		}

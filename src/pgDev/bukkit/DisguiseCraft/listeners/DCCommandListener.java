@@ -355,13 +355,24 @@ public class DCCommandListener implements CommandExecutor, TabCompleter {
 				|| args[0].equalsIgnoreCase("orange") || args[0].equalsIgnoreCase("pink") || args[0].equalsIgnoreCase("purple")
 				|| args[0].equalsIgnoreCase("red") || args[0].equalsIgnoreCase("silver") || args[0].equalsIgnoreCase("white")
 				|| args[0].equalsIgnoreCase("yellow") || args[0].equalsIgnoreCase("sheared")) {
+				String a = "a ";
+				if (args[0].equalsIgnoreCase("orange")) {
+					a = "an ";
+				}
+				
 				if (args.length > 1) { // New disguise
 					DisguiseType type = DisguiseType.fromString(args[1]);
 					if (type == null) {
 						sender.sendMessage(ChatColor.RED + "That mob type was not recognized.");
 					} else {
-						if (type == DisguiseType.Sheep) {
-							if (isConsole || player.hasPermission("disguisecraft.mob." + type.name().toLowerCase() + ".color." + args[0].toLowerCase())) {
+						if (type == DisguiseType.Sheep || type == DisguiseType.Wolf) {
+							String c = ".color.";
+							String co = "";
+							if (type == DisguiseType.Wolf) {
+								c = ".collar.";
+								co = "-Collared ";
+							}
+							if (isConsole || player.hasPermission("disguisecraft.mob." + type.name().toLowerCase() + c + args[0].toLowerCase())) {
 								if (plugin.disguiseDB.containsKey(player.getName())) {
 									Disguise disguise = plugin.disguiseDB.get(player.getName()).clone();
 									disguise.setType(type).setSingleData(args[0].toLowerCase());
@@ -382,12 +393,12 @@ public class DCCommandListener implements CommandExecutor, TabCompleter {
 									
 									plugin.disguisePlayer(player, disguise);
 								}
-								player.sendMessage(ChatColor.GOLD + "You have been disguised as a " + WordUtils.capitalize(args[0].toLowerCase()) + " " + plugin.disguiseDB.get(player.getName()).type.name());
+								player.sendMessage(ChatColor.GOLD + "You have been disguised as " + a + WordUtils.capitalize(args[0].toLowerCase()) + co + " " + plugin.disguiseDB.get(player.getName()).type.name());
 								if (isConsole) {
-									sender.sendMessage(player.getName() + " was disguised as a " + WordUtils.capitalize(args[0].toLowerCase()) + " " + plugin.disguiseDB.get(player.getName()).type.name());
+									sender.sendMessage(player.getName() + " was disguised as " + a + WordUtils.capitalize(args[0].toLowerCase()) + co + " " + plugin.disguiseDB.get(player.getName()).type.name());
 								}
 							} else {
-								player.sendMessage(ChatColor.RED + "You do not have the permissions to disguise as a " + WordUtils.capitalize(args[0].toLowerCase()) + " " + type.name());
+								player.sendMessage(ChatColor.RED + "You do not have the permissions to disguise as " + a + WordUtils.capitalize(args[0].toLowerCase()) + co + " " + type.name());
 							}
 						} else {
 							sender.sendMessage(ChatColor.RED + "A " + type.name() + " cannot be colored.");
@@ -402,7 +413,14 @@ public class DCCommandListener implements CommandExecutor, TabCompleter {
 							if (disguise.type.isPlayer()) {
 								sender.sendMessage(ChatColor.RED + "Player disguises cannot change colors.");
 							} else {
-								if (disguise.type == DisguiseType.Sheep) {
+								if (disguise.type == DisguiseType.Sheep || disguise.type == DisguiseType.Wolf) {
+									String c = ".color.";
+									String co = "";
+									if (disguise.type == DisguiseType.Wolf) {
+										c = ".collar.";
+										co = "-Collared ";
+									}
+									
 									String currentColor = disguise.getColor();
 									if (currentColor != null) {
 										disguise.data.remove(currentColor);
@@ -410,19 +428,19 @@ public class DCCommandListener implements CommandExecutor, TabCompleter {
 									disguise.addSingleData(args[0].toLowerCase());
 									
 									// Check for permissions
-									if (isConsole || player.hasPermission("disguisecraft.mob." + disguise.type.name().toLowerCase() + ".color." + args[0].toLowerCase())) {
+									if (isConsole || player.hasPermission("disguisecraft.mob." + disguise.type.name().toLowerCase() + c + args[0].toLowerCase())) {
 										// Pass the event
 										PlayerDisguiseEvent ev = new PlayerDisguiseEvent(player, disguise);
 										plugin.getServer().getPluginManager().callEvent(ev);
 										if (ev.isCancelled()) return true;
 										
 										plugin.changeDisguise(player, disguise);
-										player.sendMessage(ChatColor.GOLD + "You have been disguised as a " + WordUtils.capitalize(args[0].toLowerCase()) + " " + disguise.type.name());
+										player.sendMessage(ChatColor.GOLD + "You have been disguised as " + a + WordUtils.capitalize(args[0].toLowerCase()) + co + " " + disguise.type.name());
 										if (isConsole) {
-											sender.sendMessage(player.getName() + " was disguised as a " + WordUtils.capitalize(args[0].toLowerCase()) + " " + disguise.type.name());
+											sender.sendMessage(player.getName() + " was disguised as " + a + WordUtils.capitalize(args[0].toLowerCase()) + co + " " + disguise.type.name());
 										}
 									} else {
-										player.sendMessage(ChatColor.RED + "You do not have the permissions to disguise as a " + WordUtils.capitalize(args[0].toLowerCase()) + " " + disguise.type.name());
+										player.sendMessage(ChatColor.RED + "You do not have the permissions to disguise as " + a + WordUtils.capitalize(args[0].toLowerCase()) + co + " " + disguise.type.name());
 									}
 								} else {
 									sender.sendMessage(ChatColor.RED + "A " + disguise.type.name() + " cannot be colored.");
@@ -589,11 +607,11 @@ public class DCCommandListener implements CommandExecutor, TabCompleter {
 					}
 				}
 			} else if (args[0].equalsIgnoreCase("tamed") || args[0].equalsIgnoreCase("aggressive")) {
-				// Temporary patch
-				sender.sendMessage(ChatColor.RED + "As of 1.4.2, trying to disguise as a tamed or aggressive wolf will crash clients. This feature has been temporarily disabled.");
-				return true;
+				String a = "a ";
+				if (args[0].equalsIgnoreCase("aggressive")) {
+					a = "an ";
+				}
 				
-				/*
 				if (args.length > 1) { // New disguise
 					DisguiseType type = DisguiseType.fromString(args[1]);
 					if (type == null) {
@@ -621,12 +639,14 @@ public class DCCommandListener implements CommandExecutor, TabCompleter {
 									
 									plugin.disguisePlayer(player, disguise);
 								}
-								player.sendMessage(ChatColor.GOLD + "You have been disguised as a " + WordUtils.capitalize(args[0].toLowerCase()) + " " + plugin.disguiseDB.get(player.getName()).type.name());
+								
+								
+								player.sendMessage(ChatColor.GOLD + "You have been disguised as " + a + WordUtils.capitalize(args[0].toLowerCase()) + " " + plugin.disguiseDB.get(player.getName()).type.name());
 								if (isConsole) {
-									sender.sendMessage(player.getName() + " was disguised as a " + WordUtils.capitalize(args[0].toLowerCase()) + " " + plugin.disguiseDB.get(player.getName()).type.name());
+									sender.sendMessage(player.getName() + " was disguised as " + a + WordUtils.capitalize(args[0].toLowerCase()) + " " + plugin.disguiseDB.get(player.getName()).type.name());
 								}
 							} else {
-								player.sendMessage(ChatColor.RED + "You do not have the permissions to disguise as a " + WordUtils.capitalize(args[0].toLowerCase()) + " " + type.name());
+								player.sendMessage(ChatColor.RED + "You do not have the permissions to disguise as " + a + WordUtils.capitalize(args[0].toLowerCase()) + " " + type.name());
 							}
 						} else {
 							sender.sendMessage(ChatColor.RED + "A " + type.name() + " cannot be " + args[0].toLowerCase());
@@ -635,20 +655,13 @@ public class DCCommandListener implements CommandExecutor, TabCompleter {
 				} else { // Current mob
 					if (plugin.disguiseDB.containsKey(player.getName())) {
 						Disguise disguise = plugin.disguiseDB.get(player.getName()).clone();
-						if (disguise.data != null && disguise.data.contains(args[0].toLowerCase())) {
+						if (disguise.data.contains(args[0].toLowerCase())) {
 							sender.sendMessage(ChatColor.RED + "Already " + args[0] + ".");
 						} else {
-							if (disguise.isPlayer()) {
+							if (disguise.type.isPlayer()) {
 								sender.sendMessage(ChatColor.RED + "Player disguises cannot be " + args[0].toLowerCase());
 							} else {
-								if (disguise.mob == DisguiseType.Wolf) {
-									if (disguise.data != null) {
-										if (disguise.data.contains("tamed") && !args[0].equals("tamed")) {
-											disguise.data.remove("tamed");
-										} else if (disguise.data.contains("aggressive") && !args[0].equals("aggressive")) {
-											disguise.data.remove("aggressive");
-										}
-									}
+								if (disguise.type == DisguiseType.Wolf) {
 									disguise.addSingleData(args[0].toLowerCase());
 									
 									// Check for permissions
@@ -659,12 +672,12 @@ public class DCCommandListener implements CommandExecutor, TabCompleter {
 										if (ev.isCancelled()) return true;
 										
 										plugin.changeDisguise(player, disguise);
-										player.sendMessage(ChatColor.GOLD + "You have been disguised as a " + WordUtils.capitalize(args[0].toLowerCase()) + " " + disguise.type.name());
+										player.sendMessage(ChatColor.GOLD + "You have been disguised as " + a + WordUtils.capitalize(args[0].toLowerCase()) + " " + disguise.type.name());
 										if (isConsole) {
-											sender.sendMessage(player.getName() + " was disguised as a " + WordUtils.capitalize(args[0].toLowerCase()) + " " + disguise.type.name());
+											sender.sendMessage(player.getName() + " was disguised as " + a + WordUtils.capitalize(args[0].toLowerCase()) + " " + disguise.type.name());
 										}
 									} else {
-										player.sendMessage(ChatColor.RED + "You do not have the permissions to disguise as a " + WordUtils.capitalize(args[0].toLowerCase()) + " " + disguise.type.name());
+										player.sendMessage(ChatColor.RED + "You do not have the permissions to disguise as " + a + WordUtils.capitalize(args[0].toLowerCase()) + " " + disguise.type.name());
 									}
 								} else {
 									sender.sendMessage(ChatColor.RED + "A " + disguise.type.name() + " cannot be " + args[0].toLowerCase());
@@ -674,7 +687,7 @@ public class DCCommandListener implements CommandExecutor, TabCompleter {
 					} else {
 						sender.sendMessage(ChatColor.RED + "Not currently disguised. A DisguiseType must be given.");
 					}
-				}*/
+				}
 			} else if (args[0].equalsIgnoreCase("tabby") || args[0].equalsIgnoreCase("tuxedo") || args[0].equalsIgnoreCase("siamese")) {
 				if (args.length > 1) { // New disguise
 					DisguiseType type = DisguiseType.fromString(args[1]);
