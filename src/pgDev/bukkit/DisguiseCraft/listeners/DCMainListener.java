@@ -114,6 +114,15 @@ public class DCMainListener implements Listener {
 		plugin.getServer().getScheduler().runTask(plugin, new WorldChangeUpdater(plugin, event));
 	}
 	
+	@EventHandler(priority = EventPriority.LOW)
+	public void onRespawn(PlayerRespawnEvent event) {
+		Player player = event.getPlayer();
+		if (plugin.disguiseDB.containsKey(player.getName())) {
+			// Respawn disguise
+			plugin.sendPacketToWorld(player.getWorld(), plugin.disguiseDB.get(player.getName()).packetGenerator.getSpawnPacket(event.getRespawnLocation()));
+		}
+	}
+	
 	@EventHandler
 	public void onTarget(EntityTargetEvent event) {
 		if (!event.isCancelled()) {

@@ -32,6 +32,16 @@ public class DCPacketGenerator {
 		}
 	}
 	
+	public Object getSpawnPacket(Location loc) {
+		if (d.type.isMob()) {
+			return getMobSpawnPacket(loc);
+		} else if (d.type.isPlayer()) {
+			return getPlayerSpawnPacket(loc, (short) 0);
+		} else {
+			return getObjectSpawnPacket(loc);
+		}
+	}
+	
 	public LinkedList<Object> getArmorPackets(Player player) {
 		LinkedList<Object> packets = new LinkedList<Object>();
 		ItemStack[] armor;
