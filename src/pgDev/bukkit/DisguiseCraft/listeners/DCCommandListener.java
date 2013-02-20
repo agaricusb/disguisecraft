@@ -1172,6 +1172,36 @@ public class DCCommandListener implements CommandExecutor, TabCompleter {
 						sender.sendMessage(ChatColor.RED + "Not currently disguised. A DisguiseType must be given.");
 					}
 				}
+			} else if (args[0].equalsIgnoreCase("witherskeleton") || (args[0].equalsIgnoreCase("wither") && (args.length > 1 && args[1].equalsIgnoreCase("skeleton")))) {
+				DisguiseType type = DisguiseType.Skeleton;
+				if (isConsole || player.hasPermission("disguisecraft.mob." + type.name().toLowerCase() + ".wither")) {
+					if (plugin.disguiseDB.containsKey(player.getName())) {
+						Disguise disguise = plugin.disguiseDB.get(player.getName()).clone();
+						disguise.setType(type).setSingleData("wither");
+						
+						// Pass the event
+						PlayerDisguiseEvent ev = new PlayerDisguiseEvent(player, disguise);
+						plugin.getServer().getPluginManager().callEvent(ev);
+						if (ev.isCancelled()) return true;
+						
+						plugin.changeDisguise(player, disguise);
+					} else {
+						Disguise disguise = new Disguise(plugin.getNextAvailableID(), "wither", type);
+						
+						// Pass the event
+						PlayerDisguiseEvent ev = new PlayerDisguiseEvent(player, disguise);
+						plugin.getServer().getPluginManager().callEvent(ev);
+						if (ev.isCancelled()) return true;
+						
+						plugin.disguisePlayer(player, disguise);
+					}
+					player.sendMessage(ChatColor.GOLD + "You have been disguised as a Wither " + plugin.disguiseDB.get(player.getName()).type.name());
+					if (isConsole) {
+						sender.sendMessage(player.getName() + " was disguised as a Wither " + plugin.disguiseDB.get(player.getName()).type.name());
+					}
+				} else {
+					player.sendMessage(ChatColor.RED + "You do not have permission to disguise as a Wither " + type.name());
+				}
 			} else if (args[0].equalsIgnoreCase("drop")) {
 				if (isConsole || player.hasPermission("disguisecraft.drop")) {
 					if (plugin.disguiseDB.containsKey(player.getName())) {

@@ -62,7 +62,7 @@ public class Disguise {
 	}
 	
 	/**
-	 * Constructs a new Disguise object with null data
+	 * Constructs a new Disguise object with no data
 	 * @param entityID The entity ID of the disguise
 	 * @param mob The type of mob the disguise is (null if player)
 	 */
@@ -387,6 +387,10 @@ public class Disguise {
 			}
 			
 			if (data.contains("infected")) {
+				mWatch(13, (byte) 1);
+			}
+			
+			if (data.contains("wither")) {
 				mWatch(13, (byte) 1);
 			}
 		}

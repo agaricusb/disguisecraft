@@ -1,6 +1,6 @@
 name: DisguiseCraft
 main: pgDev.bukkit.DisguiseCraft.DisguiseCraft
-version: 4.4
+version: 4.5
 author: PG Dev Team
 authors: [Tux2, DrKabob, Devil Boy]
 description: Turn into any mob you want!
@@ -116,6 +116,7 @@ permissions:
             disguisecraft.mob.sheep.color.*: true
             disguisecraft.mob.silverfish: true
             disguisecraft.mob.skeleton: true
+            disguisecraft.mob.skeleton.wither: true
             disguisecraft.mob.slime: true
             disguisecraft.mob.slime.size.*: true
             disguisecraft.mob.snowman: true
@@ -340,6 +341,9 @@ permissions:
     disguisecraft.mob.skeleton:
         default: op
         description: Can disguise as a skeleton.
+    disguisecraft.mob.skeleton.wither:
+        default: op
+        description: Can disguise as a wither skeleton.
     disguisecraft.mob.slime:
         default: op
         description: Can disguise as a slime.
