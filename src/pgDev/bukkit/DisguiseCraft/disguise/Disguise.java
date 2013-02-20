@@ -187,7 +187,7 @@ public class Disguise {
 	 * @return The new Disguise object (for chaining)
 	 */
 	public Disguise setType(DisguiseType type) {
-		this. type =  type;
+		this.type =  type;
 		initializeData();
 		return this;
 	}

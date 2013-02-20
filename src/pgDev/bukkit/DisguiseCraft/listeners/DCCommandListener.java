@@ -375,7 +375,7 @@ public class DCCommandListener implements CommandExecutor, TabCompleter {
 							if (isConsole || player.hasPermission("disguisecraft.mob." + type.name().toLowerCase() + c + args[0].toLowerCase())) {
 								if (plugin.disguiseDB.containsKey(player.getName())) {
 									Disguise disguise = plugin.disguiseDB.get(player.getName()).clone();
-									disguise.setType(type).setSingleData(args[0].toLowerCase());
+									disguise.setType(type).setSingleData("tamed").addSingleData(args[0].toLowerCase());
 									
 									// Pass the event
 									PlayerDisguiseEvent ev = new PlayerDisguiseEvent(player, disguise);
@@ -424,6 +424,9 @@ public class DCCommandListener implements CommandExecutor, TabCompleter {
 									String currentColor = disguise.getColor();
 									if (currentColor != null) {
 										disguise.data.remove(currentColor);
+									}
+									if (!disguise.data.contains("tamed")) {
+										disguise.addSingleData("tamed");
 									}
 									disguise.addSingleData(args[0].toLowerCase());
 									
